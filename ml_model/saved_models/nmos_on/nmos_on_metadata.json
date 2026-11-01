@@ -1,0 +1,126 @@
+{
+    "case_name": "nmos_on",
+    "feature_columns": [
+        "vdd",
+        "temp",
+        "w",
+        "vd",
+        "vs",
+        "vg",
+        "vb",
+        "vth0",
+        "toxe",
+        "ndep",
+        "u0",
+        "xj"
+    ],
+    "target_columns": [
+        "id",
+        "ig",
+        "is",
+        "ib"
+    ],
+    "epsilon": 1e-20,
+    "model_type": "LightGBM Regressor (GBDT)",
+    "training_date": "2026-10-28 12:35:44",
+    "val_metrics": [
+        {
+            "Terminal": "ID",
+            "Mean Accuracy (%)": "62.86%",
+            "Median Accuracy (%)": "85.60%",
+            "Median Error (%)": "14.40%",
+            "95th-Pct Error (%)": "91.02%",
+            "Within 5% Tol (%)": "20.1%",
+            "R2 (Log Scale)": 0.978,
+            "R2 (Linear)": 0.9782,
+            "MAE (A)": "8.855e-06",
+            "RMSE (A)": "1.602e-05"
+        },
+        {
+            "Terminal": "IG",
+            "Mean Accuracy (%)": "88.61%",
+            "Median Accuracy (%)": "91.98%",
+            "Median Error (%)": "8.02%",
+            "95th-Pct Error (%)": "32.54%",
+            "Within 5% Tol (%)": "33.7%",
+            "R2 (Log Scale)": 0.9947,
+            "R2 (Linear)": 0.985,
+            "MAE (A)": "1.686e-09",
+            "RMSE (A)": "4.353e-09"
+        },
+        {
+            "Terminal": "IS",
+            "Mean Accuracy (%)": "66.07%",
+            "Median Accuracy (%)": "86.78%",
+            "Median Error (%)": "13.22%",
+            "95th-Pct Error (%)": "80.06%",
+            "Within 5% Tol (%)": "20.1%",
+            "R2 (Log Scale)": 0.9795,
+            "R2 (Linear)": 0.9805,
+            "MAE (A)": "8.384e-06",
+            "RMSE (A)": "1.516e-05"
+        },
+        {
+            "Terminal": "IB",
+            "Mean Accuracy (%)": "79.11%",
+            "Median Accuracy (%)": "83.31%",
+            "Median Error (%)": "16.69%",
+            "95th-Pct Error (%)": "52.40%",
+            "Within 5% Tol (%)": "17.8%",
+            "R2 (Log Scale)": 0.9933,
+            "R2 (Linear)": 0.8813,
+            "MAE (A)": "1.026e-10",
+            "RMSE (A)": "6.202e-10"
+        }
+    ],
+    "test_metrics": [
+        {
+            "Terminal": "ID",
+            "Mean Accuracy (%)": "44.01%",
+            "Median Accuracy (%)": "86.26%",
+            "Median Error (%)": "13.74%",
+            "95th-Pct Error (%)": "87.51%",
+            "Within 5% Tol (%)": "19.3%",
+            "R2 (Log Scale)": 0.9773,
+            "R2 (Linear)": 0.9768,
+            "MAE (A)": "8.733e-06",
+            "RMSE (A)": "1.608e-05"
+        },
+        {
+            "Terminal": "IG",
+            "Mean Accuracy (%)": "87.79%",
+            "Median Accuracy (%)": "91.64%",
+            "Median Error (%)": "8.36%",
+            "95th-Pct Error (%)": "34.49%",
+            "Within 5% Tol (%)": "31.4%",
+            "R2 (Log Scale)": 0.9943,
+            "R2 (Linear)": 0.9864,
+            "MAE (A)": "1.626e-09",
+            "RMSE (A)": "3.835e-09"
+        },
+        {
+            "Terminal": "IS",
+            "Mean Accuracy (%)": "60.97%",
+            "Median Accuracy (%)": "86.59%",
+            "Median Error (%)": "13.41%",
+            "95th-Pct Error (%)": "97.59%",
+            "Within 5% Tol (%)": "20.3%",
+            "R2 (Log Scale)": 0.9804,
+            "R2 (Linear)": 0.9781,
+            "MAE (A)": "8.402e-06",
+            "RMSE (A)": "1.565e-05"
+        },
+        {
+            "Terminal": "IB",
+            "Mean Accuracy (%)": "79.16%",
+            "Median Accuracy (%)": "83.72%",
+            "Median Error (%)": "16.28%",
+            "95th-Pct Error (%)": "54.22%",
+            "Within 5% Tol (%)": "16.1%",
+            "R2 (Log Scale)": 0.9931,
+            "R2 (Linear)": 0.8836,
+            "MAE (A)": "8.369e-11",
+            "RMSE (A)": "6.677e-10"
+        }
+    ]
+}

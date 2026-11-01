@@ -19,7 +19,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Ensemble of decision trees, each trained on a bootstrap sample. Prediction is the average of all trees. |
 | **Strengths** | Robust to outliers, handles non-linear relationships well, minimal hyperparameter tuning, no feature scaling needed, provides feature importance. |
 | **Weaknesses** | Can struggle with extrapolation beyond training range; large memory footprint for many trees; slower inference than linear models. |
-| **Suitability** | ⭐⭐⭐⭐ Good — Handles the non-linear PVT dependencies well. |
+| **Suitability** |  Good — Handles the non-linear PVT dependencies well. |
 
 ### 2.2 Gradient Boosted Trees (XGBoost / LightGBM)
 
@@ -28,7 +28,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Sequentially builds trees, each correcting the errors of the previous one. Uses gradient descent on the loss function. |
 | **Strengths** | State-of-the-art for tabular data, excellent accuracy, handles heterogeneous features, built-in regularization, very fast with LightGBM. |
 | **Weaknesses** | More hyperparameters to tune than Random Forest; risk of overfitting without careful validation; sequential training is harder to parallelize. |
-| **Suitability** | ⭐⭐⭐⭐⭐ Excellent — Best performer on structured/tabular data like SPICE simulation outputs. |
+| **Suitability** |  Excellent — Best performer on structured/tabular data like SPICE simulation outputs. |
 
 ### 2.3 Neural Networks (Deep Learning)
 
@@ -37,7 +37,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Multi-layer perceptrons (MLPs) with non-linear activation functions learn complex mappings from inputs to outputs. |
 | **Strengths** | Can model highly complex non-linear relationships; scalable to very large datasets; flexible architecture. |
 | **Weaknesses** | Requires large datasets for good generalization; sensitive to hyperparameters (learning rate, architecture, regularization); needs feature scaling; slower to train; less interpretable. |
-| **Suitability** | ⭐⭐⭐ Moderate — Can work well but requires more engineering effort for 10,000-sample datasets. |
+| **Suitability** |  Moderate — Can work well but requires more engineering effort for 10,000-sample datasets. |
 
 ### 2.4 Support Vector Regression (SVR)
 
@@ -46,7 +46,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Finds a hyperplane that fits the data within an ε-insensitive tube, using kernel functions for non-linearity. |
 | **Strengths** | Effective in high-dimensional spaces, works well with small datasets, robust to outliers with appropriate kernel. |
 | **Weaknesses** | Poor scalability to large datasets (O(n²) to O(n³) training time); kernel selection and hyperparameter tuning can be challenging; slower inference. |
-| **Suitability** | ⭐⭐⭐ Moderate — Can be accurate but is slow to train on 10,000 samples. |
+| **Suitability** |  Moderate — Can be accurate but is slow to train on 10,000 samples. |
 
 ### 2.5 Linear Regression / Polynomial Regression
 
@@ -55,7 +55,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Fits a linear (or polynomial) function to the data by minimizing squared error. |
 | **Strengths** | Very fast, highly interpretable, good as a baseline. |
 | **Weaknesses** | Cannot capture the non-linear physics of leakage currents without extensive feature engineering; poor accuracy for this problem. |
-| **Suitability** | ⭐⭐ Poor — Only useful as a baseline; leakage currents have exponential dependencies on temperature and threshold voltage. |
+| **Suitability** |  Poor — Only useful as a baseline; leakage currents have exponential dependencies on temperature and threshold voltage. |
 
 ### 2.6 K-Nearest Neighbors (KNN) Regression
 
@@ -64,7 +64,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 | **How it works** | Predicts based on the average of the k closest training samples in feature space. |
 | **Strengths** | No training phase, simple to implement, captures local patterns. |
 | **Weaknesses** | Slow inference (scans all training data), sensitive to feature scaling, curse of dimensionality with many features, requires large memory. |
-| **Suitability** | ⭐⭐ Poor — Not suitable for production; very slow inference defeats the purpose of replacing SPICE. |
+| **Suitability** |  Poor — Not suitable for production; very slow inference defeats the purpose of replacing SPICE. |
 
 ---
 
@@ -76,7 +76,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 - **Pros**: Simple, no information loss
 - **Cons**: Currents span many orders of magnitude, making regression difficult
 
-### 3.2 Log-Transformed Targets ⭐ RECOMMENDED
+### 3.2 Log-Transformed Targets  RECOMMENDED
 - **Input features**: Same as above
 - **Output targets**: log₁₀(|Id|), log₁₀(|Ig|), log₁₀(|Is|), log₁₀(|Ib|) with sign stored separately
 - **Pros**: Compresses the dynamic range (femtoamps to microamps), dramatically improves regression accuracy, aligns with the physical exponential dependencies
@@ -96,7 +96,7 @@ There are several ways to approach the ML-based leakage current estimation probl
 
 ## 4. Training Strategies
 
-### 4.1 Single Model per Case ⭐ RECOMMENDED
+### 4.1 Single Model per Case  RECOMMENDED
 Train **4 separate model instances** (one for each case: NMOS ON, NMOS OFF, PMOS ON, PMOS OFF), each predicting all 4 terminal currents simultaneously (multi-output regression).
 
 - **Pros**: Each model specializes in one operating regime; simpler training; higher accuracy
@@ -142,7 +142,7 @@ Regardless of the ML model chosen, the prediction pipeline follows a hierarchica
 
 ---
 
-## 6. Recommended Best Methodology ⭐
+## 6. Recommended Best Methodology 
 
 Based on the project requirements (10,000 samples per case, 12 input features, 4 output currents, target ~99% accuracy), here is the **recommended end-to-end methodology**:
 
@@ -210,12 +210,12 @@ Based on the project requirements (10,000 samples per case, 12 input features, 4
 
 | Approach | Expected Accuracy | Training Time | Inference Speed | Complexity |
 |----------|-------------------|---------------|-----------------|------------|
-| **XGBoost + Log Transform** | ⭐⭐⭐⭐⭐ (>98%) | Fast | Very Fast | Low |
-| Random Forest + Log Transform | ⭐⭐⭐⭐ (>95%) | Fast | Fast | Low |
-| Neural Network + Normalization | ⭐⭐⭐⭐ (>95%) | Moderate | Very Fast | High |
-| SVR + Normalization | ⭐⭐⭐ (>90%) | Slow | Moderate | Moderate |
-| Linear / Polynomial Regression | ⭐⭐ (<85%) | Very Fast | Very Fast | Very Low |
-| KNN | ⭐⭐ (>85%) | None | Very Slow | Very Low |
+| **XGBoost + Log Transform** |  (>98%) | Fast | Very Fast | Low |
+| Random Forest + Log Transform |  (>95%) | Fast | Fast | Low |
+| Neural Network + Normalization |  (>95%) | Moderate | Very Fast | High |
+| SVR + Normalization |  (>90%) | Slow | Moderate | Moderate |
+| Linear / Polynomial Regression |  (<85%) | Very Fast | Very Fast | Very Low |
+| KNN |  (>85%) | None | Very Slow | Very Low |
 
 ---
 
