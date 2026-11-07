@@ -1,0 +1,63 @@
+{
+    "model_type": "XGBoost Regressor (hist)",
+    "case": "nmos_on",
+    "features_count": 28,
+    "val_mean_accuracy": 89.32,
+    "val_median_accuracy": 93.6,
+    "test_mean_accuracy": 89.45499999999998,
+    "test_median_accuracy": 93.545,
+    "test_metrics": [
+        {
+            "Terminal": "ID",
+            "Mean Accuracy (%)": "91.19%",
+            "Median Accuracy (%)": "96.06%",
+            "Median Error (%)": "3.94%",
+            "95th-Pct Error (%)": "29.97%",
+            "Within 5% Tol (%)": "58.7%",
+            "Within 10% Tol (%)": "77.1%",
+            "R2 (Linear)": 0.9985,
+            "R2 (Log)": 0.9974,
+            "MAE (A)": "2.297e-06",
+            "RMSE (A)": "4.066e-06"
+        },
+        {
+            "Terminal": "IG",
+            "Mean Accuracy (%)": "91.34%",
+            "Median Accuracy (%)": "93.78%",
+            "Median Error (%)": "6.22%",
+            "95th-Pct Error (%)": "25.18%",
+            "Within 5% Tol (%)": "41.8%",
+            "Within 10% Tol (%)": "69.7%",
+            "R2 (Linear)": 0.9785,
+            "R2 (Log)": 0.9972,
+            "MAE (A)": "1.554e-09",
+            "RMSE (A)": "5.206e-09"
+        },
+        {
+            "Terminal": "IS",
+            "Mean Accuracy (%)": "91.13%",
+            "Median Accuracy (%)": "96.05%",
+            "Median Error (%)": "3.95%",
+            "95th-Pct Error (%)": "29.98%",
+            "Within 5% Tol (%)": "58.7%",
+            "Within 10% Tol (%)": "77.1%",
+            "R2 (Linear)": 0.9985,
+            "R2 (Log)": 0.9971,
+            "MAE (A)": "2.297e-06",
+            "RMSE (A)": "4.066e-06"
+        },
+        {
+            "Terminal": "IB",
+            "Mean Accuracy (%)": "84.16%",
+            "Median Accuracy (%)": "88.29%",
+            "Median Error (%)": "11.71%",
+            "95th-Pct Error (%)": "41.54%",
+            "Within 5% Tol (%)": "24.3%",
+            "Within 10% Tol (%)": "43.9%",
+            "R2 (Linear)": 0.8297,
+            "R2 (Log)": 0.9958,
+            "MAE (A)": "1.093e-10",
+            "RMSE (A)": "9.893e-10"
+        }
+    ]
+}

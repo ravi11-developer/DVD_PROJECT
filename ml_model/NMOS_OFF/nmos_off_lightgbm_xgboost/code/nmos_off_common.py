@@ -31,8 +31,16 @@ warnings.filterwarnings("ignore")
 # ===========================================================================
 # 1. PATHS AND SEED  -  edit the two paths if your folders are different
 # ===========================================================================
-DATA_CSV = os.environ.get("NMOS_OFF_CSV", r"D:\DVD_PROJECT\dataset\NMOS_OFF\nmos_off.csv")
-OUT_DIR = os.environ.get("NMOS_OFF_OUT", r"D:\DVD_PROJECT\ml_results\nmos_off_final")
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_DEFAULT_OUT = os.path.abspath(os.path.join(_THIS_DIR, "..", "results"))
+_DEFAULT_DATA = os.path.abspath(os.path.join(_THIS_DIR, "..", "..", "..", "..", "dataset", "NMOS_OFF", "nmos_off.csv"))
+if not os.path.exists(_DEFAULT_DATA):
+    _alt = os.path.abspath(os.path.join(_THIS_DIR, "..", "..", "..", "..", "Data_Generation_M1", "data", "nmos_off.csv"))
+    if os.path.exists(_alt):
+        _DEFAULT_DATA = _alt
+
+DATA_CSV = os.environ.get("NMOS_OFF_CSV", _DEFAULT_DATA)
+OUT_DIR = os.environ.get("NMOS_OFF_OUT", _DEFAULT_OUT)
 SEED = 42                                   # same split every run
 CURRENTS = ["id", "ig", "is", "ib"]
 K_Q = 8.617333e-5                           # Boltzmann constant / electron charge (V per K)
@@ -54,6 +62,7 @@ def load_split():
     """Read the CSV and split 70 / 15 / 15 with the fixed seed.
     itotal (Id+Ig+Is+Ib, ~0 by KCL) is never used as an input."""
     df = pd.read_csv(DATA_CSV)
+    df.columns = df.columns.str.strip()
     assert df.isnull().sum().sum() == 0, "There are missing values in the CSV"
     tr, tmp = train_test_split(df, test_size=0.30, random_state=SEED)
     va, te = train_test_split(tmp, test_size=0.50, random_state=SEED)
