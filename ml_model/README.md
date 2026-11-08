@@ -32,7 +32,8 @@ ml_model/
 ├── PMOS_ON/
 │   ├── 03_pmos_on_lightgbm.ipynb       # Fine-tuned notebook for PMOS ON case
 │   ├── plots/                          # Evaluation plots
-│   └── saved_models/                   # Trained models (.pkl) & metadata
+│   ├── saved_models/                   # Trained models (.pkl) & metadata
+│   └── lightgbm_conductance/           # LightGBM hybrid (final) + MLP/XGBoost/RF/ET comparison, see its README
 │
 ├── PMOS_OFF/
 │   ├── 04_pmos_off_lightgbm.ipynb      # Fine-tuned notebook for PMOS OFF case
