@@ -1,0 +1,22 @@
+{
+    "rows": 10000,
+    "absolute_residual_A": {
+        "median": 2.689761527993841e-14,
+        "p95": 5.869421722566687e-13,
+        "max": 9.848693066957452e-13
+    },
+    "relative_residual": {
+        "median": 9.577061959062613e-10,
+        "p95": 6.465859074453405e-09,
+        "max": 5.9877272196964156e-05
+    },
+    "rows_with_relative_residual_below_1e-6": "99.53%",
+    "verdict": "CHECK",
+    "terminal_polarities": {
+        "id": "polarity changes with Vd vs Vs",
+        "ig": "strictly positive (+)",
+        "is": "polarity changes with Vd vs Vs",
+        "ib": "strictly negative (-)"
+    },
+    "note": "itotal was an auxiliary sum column from simulation and is excluded from ML modeling."
+}

@@ -18,10 +18,9 @@ This directory is organized into dedicated subfolders for each of the four singl
 ```text
 ml_model/
 ├── NMOS_ON/
-│   ├── 01_nmos_on_lightgbm.ipynb       # Fine-tuned notebook for NMOS ON case
-│   ├── plots/                          # Parity plots and feature importance charts
-│   ├── saved_models/                   # Trained models (.pkl) & JSON metadata
-│   └── tuning_scripts/                 # Standalone LightGBM/XGBoost fine-tuning scripts
+│   └── nmos_on_lightgbm_xgboost/       # Comparative LightGBM vs. XGBoost pipeline (physics-guided)
+│       ├── code/                       # Step0-Step4 execution scripts + run_all.py
+│       └── results/                    # Validation, test, parity, and sweep plots
 │
 ├── NMOS_OFF/
 │   ├── 02_nmos_off_lightgbm.ipynb      # Fine-tuned notebook for NMOS OFF case
@@ -81,8 +80,8 @@ conda activate dvd
 To run in-place via terminal without a browser:
 ```bash
 # NMOS ON
-cd /home/ravi-sahu/Documents/5_sem/DVD/Project/ml_model/NMOS_ON
-jupyter nbconvert --to notebook --execute --inplace 01_nmos_on_lightgbm.ipynb
+cd /home/ravi-sahu/Documents/5_sem/DVD/Project/ml_model/NMOS_ON/nmos_on_lightgbm_xgboost/code
+python run_all.py
 
 # NMOS OFF
 cd /home/ravi-sahu/Documents/5_sem/DVD/Project/ml_model/NMOS_OFF

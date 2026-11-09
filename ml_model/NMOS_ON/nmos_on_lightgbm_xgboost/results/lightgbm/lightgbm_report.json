@@ -1,0 +1,303 @@
+{
+    "pipeline": "NMOS ON - LightGBM Linear Tree, physics-guided, single model for Id/Ig/Is/Ib + sign classifier",
+    "case": "NMOS ON (Vg = VDD, Vb = 0), 22nm_MGK, VDD = 0.9 V",
+    "dataset": "10000 rows, split 70/15/15 (seed 42): train 7000, validation 1500, test 1500",
+    "features_count": 41,
+    "physics_baseline": "Semi-empirical MOSFET model (channel conduction with velocity saturation, multi-terminal gate tunneling, impact-ionization bulk current) fitted on training rows; the gradient-boosted ML model learns log10|I| minus physics log10|I|",
+    "accuracy_definition": "per-row accuracy = 100 - |pred - SPICE| / (|SPICE| + Ifloor) * 100, floored at 0; median accuracy = 100 - median error",
+    "noise_floors": {
+        "id": 1e-10,
+        "ig": 1e-15,
+        "is": 1e-10,
+        "ib": 1e-15
+    },
+    "hyperparameters": {
+        "learning_rate": 0.015,
+        "num_leaves": 63,
+        "min_child_samples": 10,
+        "linear_lambda": 0.1,
+        "subsample": 0.8,
+        "colsample_bytree": 0.9,
+        "reg_lambda": 0.01,
+        "max_bin": 255,
+        "n_estimators": 30000,
+        "linear_tree": true,
+        "subsample_freq": 1,
+        "random_state": 42,
+        "n_jobs": 2,
+        "early_stopping_rounds": 300
+    },
+    "tuning": "Linear Tree formulation (linear_tree=True) with early stopping on validation median error",
+    "trees_used": 15389,
+    "lightgbm_train": {
+        "mean_accuracy": 99.949,
+        "median_accuracy": 99.96,
+        "metrics": [
+            {
+                "Terminal": "ID",
+                "Mean Accuracy (%)": "99.96%",
+                "Median Accuracy (%)": "99.97%",
+                "Median Error (%)": "0.035%",
+                "95th-Pct Error (%)": "0.12%",
+                "Within 1% Tol (%)": "100.0%",
+                "Within 5% Tol (%)": "100.0%",
+                "Within 10% Tol (%)": "100.0%",
+                "R2 (Linear)": 1.0,
+                "R2 (Log)": 1.0,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "2.677e-08",
+                "RMSE (A)": "4.797e-08"
+            },
+            {
+                "Terminal": "IG",
+                "Mean Accuracy (%)": "99.94%",
+                "Median Accuracy (%)": "99.95%",
+                "Median Error (%)": "0.049%",
+                "95th-Pct Error (%)": "0.16%",
+                "Within 1% Tol (%)": "100.0%",
+                "Within 5% Tol (%)": "100.0%",
+                "Within 10% Tol (%)": "100.0%",
+                "R2 (Linear)": 1.0,
+                "R2 (Log)": 1.0,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "1.301e-11",
+                "RMSE (A)": "2.840e-11"
+            },
+            {
+                "Terminal": "IS",
+                "Mean Accuracy (%)": "99.96%",
+                "Median Accuracy (%)": "99.96%",
+                "Median Error (%)": "0.035%",
+                "95th-Pct Error (%)": "0.12%",
+                "Within 1% Tol (%)": "100.0%",
+                "Within 5% Tol (%)": "100.0%",
+                "Within 10% Tol (%)": "100.0%",
+                "R2 (Linear)": 1.0,
+                "R2 (Log)": 1.0,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "2.645e-08",
+                "RMSE (A)": "4.771e-08"
+            },
+            {
+                "Terminal": "IB",
+                "Mean Accuracy (%)": "99.95%",
+                "Median Accuracy (%)": "99.96%",
+                "Median Error (%)": "0.042%",
+                "95th-Pct Error (%)": "0.15%",
+                "Within 1% Tol (%)": "100.0%",
+                "Within 5% Tol (%)": "100.0%",
+                "Within 10% Tol (%)": "100.0%",
+                "R2 (Linear)": 1.0,
+                "R2 (Log)": 1.0,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "2.359e-13",
+                "RMSE (A)": "1.231e-12"
+            }
+        ]
+    },
+    "lightgbm_validation": {
+        "mean_accuracy": 96.1115,
+        "median_accuracy": 98.1274,
+        "metrics": [
+            {
+                "Terminal": "ID",
+                "Mean Accuracy (%)": "96.40%",
+                "Median Accuracy (%)": "98.94%",
+                "Median Error (%)": "1.062%",
+                "95th-Pct Error (%)": "15.67%",
+                "Within 1% Tol (%)": "48.3%",
+                "Within 5% Tol (%)": "81.3%",
+                "Within 10% Tol (%)": "90.2%",
+                "R2 (Linear)": 0.9999,
+                "R2 (Log)": 0.9989,
+                "Sign Correct (%)": "99.93%",
+                "MAE (A)": "5.611e-07",
+                "RMSE (A)": "8.725e-07"
+            },
+            {
+                "Terminal": "IG",
+                "Mean Accuracy (%)": "98.00%",
+                "Median Accuracy (%)": "99.14%",
+                "Median Error (%)": "0.856%",
+                "95th-Pct Error (%)": "8.02%",
+                "Within 1% Tol (%)": "55.5%",
+                "Within 5% Tol (%)": "90.7%",
+                "Within 10% Tol (%)": "96.4%",
+                "R2 (Linear)": 0.9998,
+                "R2 (Log)": 0.9995,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "1.776e-10",
+                "RMSE (A)": "4.391e-10"
+            },
+            {
+                "Terminal": "IS",
+                "Mean Accuracy (%)": "96.53%",
+                "Median Accuracy (%)": "98.90%",
+                "Median Error (%)": "1.096%",
+                "95th-Pct Error (%)": "15.34%",
+                "Within 1% Tol (%)": "48.3%",
+                "Within 5% Tol (%)": "81.3%",
+                "Within 10% Tol (%)": "90.6%",
+                "R2 (Linear)": 0.9999,
+                "R2 (Log)": 0.9988,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "5.621e-07",
+                "RMSE (A)": "8.738e-07"
+            },
+            {
+                "Terminal": "IB",
+                "Mean Accuracy (%)": "93.52%",
+                "Median Accuracy (%)": "95.52%",
+                "Median Error (%)": "4.476%",
+                "95th-Pct Error (%)": "18.24%",
+                "Within 1% Tol (%)": "11.6%",
+                "Within 5% Tol (%)": "54.3%",
+                "Within 10% Tol (%)": "80.7%",
+                "R2 (Linear)": 0.9966,
+                "R2 (Log)": 0.9992,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "2.129e-11",
+                "RMSE (A)": "9.516e-11"
+            }
+        ]
+    },
+    "lightgbm_test": {
+        "mean_accuracy": 96.16,
+        "median_accuracy": 98.0515,
+        "metrics": [
+            {
+                "Terminal": "ID",
+                "Mean Accuracy (%)": "96.58%",
+                "Median Accuracy (%)": "98.85%",
+                "Median Error (%)": "1.152%",
+                "95th-Pct Error (%)": "13.95%",
+                "Within 1% Tol (%)": "45.9%",
+                "Within 5% Tol (%)": "80.8%",
+                "Within 10% Tol (%)": "92.0%",
+                "R2 (Linear)": 0.9999,
+                "R2 (Log)": 0.9992,
+                "Sign Correct (%)": "99.87%",
+                "MAE (A)": "5.489e-07",
+                "RMSE (A)": "8.700e-07"
+            },
+            {
+                "Terminal": "IG",
+                "Mean Accuracy (%)": "97.83%",
+                "Median Accuracy (%)": "99.14%",
+                "Median Error (%)": "0.862%",
+                "95th-Pct Error (%)": "9.57%",
+                "Within 1% Tol (%)": "56.4%",
+                "Within 5% Tol (%)": "90.5%",
+                "Within 10% Tol (%)": "95.5%",
+                "R2 (Linear)": 0.9999,
+                "R2 (Log)": 0.9994,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "1.613e-10",
+                "RMSE (A)": "4.309e-10"
+            },
+            {
+                "Terminal": "IS",
+                "Mean Accuracy (%)": "96.58%",
+                "Median Accuracy (%)": "98.82%",
+                "Median Error (%)": "1.183%",
+                "95th-Pct Error (%)": "14.26%",
+                "Within 1% Tol (%)": "45.8%",
+                "Within 5% Tol (%)": "81.1%",
+                "Within 10% Tol (%)": "91.8%",
+                "R2 (Linear)": 0.9999,
+                "R2 (Log)": 0.9988,
+                "Sign Correct (%)": "99.93%",
+                "MAE (A)": "5.498e-07",
+                "RMSE (A)": "8.734e-07"
+            },
+            {
+                "Terminal": "IB",
+                "Mean Accuracy (%)": "93.65%",
+                "Median Accuracy (%)": "95.40%",
+                "Median Error (%)": "4.597%",
+                "95th-Pct Error (%)": "17.97%",
+                "Within 1% Tol (%)": "12.0%",
+                "Within 5% Tol (%)": "53.1%",
+                "Within 10% Tol (%)": "81.7%",
+                "R2 (Linear)": 0.9974,
+                "R2 (Log)": 0.9993,
+                "Sign Correct (%)": "100.00%",
+                "MAE (A)": "1.980e-11",
+                "RMSE (A)": "1.229e-10"
+            }
+        ]
+    },
+    "overfit_check": [
+        {
+            "Terminal": "ID",
+            "Train median (%)": 0.0347,
+            "Validation median (%)": 1.062,
+            "Test median (%)": 1.1522,
+            "Val/Train median ratio": 30.58,
+            "Train p95 (%)": 0.115,
+            "Validation p95 (%)": 15.668,
+            "Test p95 (%)": 13.946,
+            "Val/Train p95 ratio": 136.2,
+            "Verdict": "WARNING - validation error is 30.6x train error"
+        },
+        {
+            "Terminal": "IG",
+            "Train median (%)": 0.0486,
+            "Validation median (%)": 0.8563,
+            "Test median (%)": 0.8622,
+            "Val/Train median ratio": 17.62,
+            "Train p95 (%)": 0.163,
+            "Validation p95 (%)": 8.018,
+            "Test p95 (%)": 9.568,
+            "Val/Train p95 ratio": 49.25,
+            "Verdict": "WARNING - validation error is 17.6x train error"
+        },
+        {
+            "Terminal": "IS",
+            "Train median (%)": 0.035,
+            "Validation median (%)": 1.0957,
+            "Test median (%)": 1.1828,
+            "Val/Train median ratio": 31.28,
+            "Train p95 (%)": 0.116,
+            "Validation p95 (%)": 15.344,
+            "Test p95 (%)": 14.259,
+            "Val/Train p95 ratio": 132.83,
+            "Verdict": "WARNING - validation error is 31.3x train error"
+        },
+        {
+            "Terminal": "IB",
+            "Train median (%)": 0.0417,
+            "Validation median (%)": 4.4765,
+            "Test median (%)": 4.5967,
+            "Val/Train median ratio": 107.24,
+            "Train p95 (%)": 0.148,
+            "Validation p95 (%)": 18.24,
+            "Test p95 (%)": 17.969,
+            "Val/Train p95 ratio": 123.25,
+            "Verdict": "WARNING - validation error is 107.2x train error"
+        }
+    ],
+    "physics_fit": {
+        "gate": [
+            12.303850464490338,
+            4.850432790705322,
+            19.353860088581435,
+            0.07792222516784578,
+            -7.347162749141531
+        ],
+        "channel": [
+            13.632215517279732,
+            1.1782519978261714,
+            1.4609249052271327,
+            1.2395882491832981,
+            -1.6895019134280405,
+            0.32989366561340083
+        ],
+        "bulk": [
+            -29.210106558172207,
+            0.304008264002534,
+            0.0020957149021129605,
+            1.4376246032395822e-06
+        ]
+    }
+}
