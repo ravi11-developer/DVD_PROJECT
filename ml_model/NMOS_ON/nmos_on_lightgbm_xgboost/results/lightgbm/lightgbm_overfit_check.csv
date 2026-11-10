@@ -1,5 +1,5 @@
 ﻿Terminal,Train median (%),Validation median (%),Test median (%),Val/Train median ratio,Train p95 (%),Validation p95 (%),Test p95 (%),Val/Train p95 ratio,Verdict
-ID,0.0347,1.062,1.1522,30.58,0.115,15.668,13.946,136.2,WARNING - validation error is 30.6x train error
-IG,0.0486,0.8563,0.8622,17.62,0.163,8.018,9.568,49.25,WARNING - validation error is 17.6x train error
-IS,0.035,1.0957,1.1828,31.28,0.116,15.344,14.259,132.83,WARNING - validation error is 31.3x train error
-IB,0.0417,4.4765,4.5967,107.24,0.148,18.24,17.969,123.25,WARNING - validation error is 107.2x train error
+ID,0.0025,0.65,0.6351,256.78,1.523,4.205,4.19,2.76,WARNING - validation error is 256.8x train error
+IG,0.0031,0.7629,0.873,247.37,1.814,7.118,6.779,3.92,WARNING - validation error is 247.4x train error
+IS,0.0026,0.6268,0.654,239.91,1.428,4.342,4.23,3.04,WARNING - validation error is 239.9x train error
+IB,0.0033,0.772,0.8088,233.2,1.692,4.762,4.256,2.82,WARNING - validation error is 233.2x train error
