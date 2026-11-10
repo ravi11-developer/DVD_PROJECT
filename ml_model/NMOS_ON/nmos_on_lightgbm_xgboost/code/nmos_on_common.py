@@ -8,9 +8,10 @@ What lives here:
     1. Paths and fixed random seed (42).
     2. Loading the CSV and fixed 70 / 15 / 15 split.
     3. The analytical physics baseline model (fitted on TRAINING rows only).
-    4. Input table generation for the single model (one shared model -> Id, Ig, Is, Ib).
-    5. Standard SPICE error metrics, noise floor handling, and team JSON reporting.
-    6. Complete diagnostic plots (parity, overfitting checks, CDF, learning curve).
+    4. Input feature table generation and target conductance transformation.
+    5. Smooth polynomial baseline (degree 2 + RidgeCV).
+    6. Standard SPICE error metrics, noise floor handling, and team JSON reporting.
+    7. Complete diagnostic plots (parity, overfitting checks, CDF, learning curve).
 """
 
 import os
@@ -20,10 +21,13 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use("Agg")                      # save plots to files, no pop-up windows
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.linear_model import RidgeCV
 from sklearn.metrics import r2_score
 
 warnings.filterwarnings("ignore")
@@ -43,7 +47,7 @@ _DEFAULT_DATA = next((p for p in _candidates if os.path.exists(p)), _candidates[
 
 DATA_CSV = os.environ.get("NMOS_ON_CSV", _DEFAULT_DATA)
 OUT_DIR = os.environ.get("NMOS_ON_OUT", _DEFAULT_OUT)
-SEED = 42                                   # reproducible split
+SEED = 42
 CURRENTS = ["id", "ig", "is", "ib"]
 K_Q = 8.617333e-5                           # Boltzmann constant / electron charge (V/K)
 
@@ -59,7 +63,6 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 
 def out_path(*parts):
-    """Path inside OUT_DIR; makes sub-folder if needed."""
     p = os.path.join(OUT_DIR, *parts)
     os.makedirs(os.path.dirname(p), exist_ok=True)
     return p
@@ -86,7 +89,6 @@ def load_split():
 # 3. SEMICONDUCTOR PHYSICS BASELINE (Fitted on TRAINING rows only)
 # ===========================================================================
 def cols(d):
-    """Raw columns in standard units (T in Kelvin, tox in nm, normalized constants)."""
     return dict(
         vd=d.vd.values, vs=d.vs.values, vg=d.vg.values, vb=d.vb.values,
         w=d.w.values, T=d.temp.values + 273.15,
@@ -97,15 +99,12 @@ def cols(d):
 
 
 def ln_gate_fn(th, V, c):
-    """Gate tunneling component through one terminal at bias V (Gate at Vdd)."""
     c0, p, a_tox, k_t = th
-    # Vg - V is positive (Vdd - V >= 0)
     v_diff = np.maximum(c["vdd"] - V, 0.0) + 0.02
     return c0 + np.log(c["w"]) + p * np.log(v_diff) - a_tox * c["tox"] + k_t * (c["T"] - 300.0) / 100.0
 
 
 def ln_gate_tot(th, c):
-    """Total gate current: Gate-to-drain overlap, gate-to-source overlap, gate-to-channel."""
     c0, p, a_tox, k_t, c_c = th
     sub_th = [c0, p, a_tox, k_t]
     fd = np.exp(ln_gate_fn(sub_th, c["vd"], c))
@@ -115,7 +114,6 @@ def ln_gate_tot(th, c):
 
 
 def ln_chan_fn(th, c):
-    """Channel conduction current with velocity saturation and gate overdrive."""
     c0, pw, pov, pvds, pt, esat = th
     vh = np.maximum(c["vd"], c["vs"])
     vl = np.minimum(c["vd"], c["vs"])
@@ -128,159 +126,161 @@ def ln_chan_fn(th, c):
             - pt * np.log(c["T"] / 300.0) + np.log(np.maximum(c["u0"], 1e-3)))
 
 
-def ln_bulk_fn(th, c, pred_c):
-    """Bulk current: Reverse-biased drain/source junctions + channel impact ionization."""
-    c0, eg, beta, a_ii = th
+def ln_bulk_improved(th, c, pred_c, pred_g):
+    """3-component bulk model: Reverse pn-junction + Gate-to-bulk oxide tunneling + Impact ionization."""
+    c_junc, eg, c_gb, c_ii, beta = th
     vt = K_Q * c["T"]
     vh = np.maximum(c["vd"], c["vs"])
     vl = np.minimum(c["vd"], c["vs"])
     avds = vh - vl
-    isat = np.exp(c0 + np.log(c["w"] / 1e-7) + 3.0 * np.log(c["T"] / 300.0) - eg * (1.0 / vt - 1.0 / (K_Q * 300.0)))
-    junc = isat * ((1.0 - np.exp(-c["vd"] / (1.2 * vt))) + (1.0 - np.exp(-c["vs"] / (1.2 * vt))))
+
+    # 1. Reverse pn junction
+    isat = np.exp(c_junc + np.log(c["w"] / 1e-7) + 3.0 * np.log(c["T"] / 300.0) - eg * (1.0 / vt - 1.0 / (K_Q * 300.0)))
+    junc = isat * ((1.0 - np.exp(-c["vd"] / (1.5 * vt))) + (1.0 - np.exp(-c["vs"] / (1.5 * vt))))
     junc = np.maximum(junc, 0.0)
-    beta_safe = np.maximum(np.abs(beta), 0.01)
-    ii = np.abs(a_ii) * pred_c * (avds / 0.9) * np.exp(-beta_safe / (avds + 0.05))
+
+    # 2. Gate-to-bulk tunneling
+    I_gb = np.exp(c_gb) * pred_g
+
+    # 3. Impact ionization
+    beta_safe = np.maximum(np.abs(beta), 0.05)
+    ii = np.exp(c_ii) * pred_c * (avds / 0.9) * np.exp(-beta_safe / (avds + 0.05))
     ii = np.maximum(ii, 0.0)
-    return np.log(np.maximum(junc + ii, 1e-40))
+
+    return np.log(np.maximum(junc + I_gb + ii, 1e-40))
 
 
 def fit_physics(tr):
-    """Fit the 3 physics models on training rows only."""
-    c = cols(tr)
+    """Fit semiconductor physics models on training rows only."""
+    c_tr = cols(tr)
 
-    # 1. Gate current (strictly positive)
+    # 1. Gate current
     y_g = np.log(np.maximum(tr.ig.values, 1e-20))
-    th_g = least_squares(lambda th: ln_gate_tot(th, c) - y_g,
-                         [-12.0, 1.5, 2.5, 0.1, 0.5], max_nfev=3000).x
+    th_g = least_squares(lambda th: ln_gate_tot(th, c_tr) - y_g, [-12.0, 1.5, 2.5, 0.1, 0.5], max_nfev=3000).x
+    pred_g_tr = np.exp(ln_gate_tot(th_g, c_tr))
 
-    # 2. Channel conduction current
+    # 2. Channel current
     I_chan_true = np.abs(tr.id.values - tr["is"].values) / 2.0
     y_c = np.log(np.maximum(I_chan_true, 1e-20))
-    th_c = least_squares(lambda th: ln_chan_fn(th, c) - y_c,
-                         [-2.0, 1.0, 1.5, 1.0, 1.5, 0.5], max_nfev=4000).x
+    th_c = least_squares(lambda th: ln_chan_fn(th, c_tr) - y_c, [-2.0, 1.0, 1.5, 1.0, 1.5, 0.5], max_nfev=4000).x
+    pred_c_tr = np.exp(ln_chan_fn(th_c, c_tr))
 
-    # 3. Substrate current (strictly negative in NMOS ON: Ib < 0)
+    # 3. Bulk current
     y_b = np.log(np.maximum(-tr.ib.values, 1e-25))
-    pred_c = np.exp(ln_chan_fn(th_c, c))
-    th_b = least_squares(lambda th: ln_bulk_fn(th, c, pred_c) - y_b,
-                         [-30.0, 0.8, 1.2, 1e-5], max_nfev=4000).x
+    th_b = least_squares(lambda th: ln_bulk_improved(th, c_tr, pred_c_tr, pred_g_tr) - y_b,
+                         [-30.0, 0.5, -7.0, -11.0, 1.4], max_nfev=5000).x
 
     return dict(gate=th_g, channel=th_c, bulk=th_b)
 
 
-# ===========================================================================
-# 4. LONG TABLE TRANSFORMATION (One Shared Regressor for Id, Ig, Is, Ib)
-# ===========================================================================
-def base_table(d, phys):
-    """Generates the rich 40+ physics-derived feature table for dataset d."""
-    vd, vs = d.vd.values, d.vs.values
-    T = d.temp.values + 273.15
-    vt = K_Q * T
-    vh, vl = np.maximum(vd, vs), np.minimum(vd, vs)
-    avds = vh - vl
-    vds = vd - vs
+def get_phys_preds(d, phys):
     c = cols(d)
-
-    # Overdrive and barrier lowering
-    vgs = c["vdd"] - vl
-    vgd = c["vdd"] - vh
-    vov = np.maximum(vgs - d.vth0.values, 0.005)
-
-    X = pd.DataFrame({
-        "vdd": d.vdd, "temp": d.temp, "log_w": np.log10(d.w), "vth0": d.vth0, "toxe": d.toxe,
-        "ndep": d.ndep, "u0": d.u0, "xj": d.xj,
-        "vd": vd, "vs": vs, "vds": vds, "abs_vds": avds, "v_high": vh, "v_low": vl,
-        "vgs": vgs, "vgd": vgd, "vov": vov,
-        "inv_vt": 1.0 / vt, "vth_vt": d.vth0.values / vt, "vds_vt": avds / vt,
-        "vh_vt": vh / vt, "vl_vt": vl / vt,
-        "log_tox": np.log10(d.toxe), "vh2": vh ** 2, "vl2": vl ** 2,
-        "vh_tox": vh / d.toxe.values * 1e-9, "vl_tox": vl / d.toxe.values * 1e-9,
-        "vds_tox": avds / d.toxe.values * 1e-9,
-        "log_T": np.log10(T),
-        "wl_ratio": d.w.values / 22e-9,
+    pg = np.exp(ln_gate_tot(phys["gate"], c))
+    pc = np.exp(ln_chan_fn(phys["channel"], c))
+    pb = np.exp(ln_bulk_improved(phys["bulk"], c, pc, pg))
+    return pd.DataFrame({
+        "log_phys_g": np.log10(np.maximum(pg, 1e-30)),
+        "log_phys_c": np.log10(np.maximum(pc, 1e-30)),
+        "log_phys_b": np.log10(np.maximum(pb, 1e-30)),
     }, index=d.index)
 
+
+# ===========================================================================
+# 4. FEATURE ENGINEERING & CONDUCTANCE TARGET TRANSFORMATION
+# ===========================================================================
+RAW = ["vdd", "temp", "w", "vd", "vs", "vg", "vb", "vth0", "toxe", "ndep", "u0", "xj"]
+
+
+def make_features(d, phys_feats):
+    X = d[RAW].copy()
+    vd, vs = d.vd.values, d.vs.values
+    avds = np.abs(vd - vs)
+    vds = vd - vs
+    T_K = d.temp.values + 273.15
+    vt = K_Q * T_K
+    vh = np.maximum(vd, vs)
+    vl = np.minimum(vd, vs)
+    vgs = d.vdd.values - vl
+    vgd = d.vdd.values - vh
+    vov = np.maximum(vgs - d.vth0.values, 0.005)
+
+    X["vds"] = vds
+    X["abs_vds"] = avds
+    X["v_high"] = vh
+    X["v_low"] = vl
+    X["vgs"] = vgs
+    X["vgd"] = vgd
+    X["vov"] = vov
+    X["inv_vt"] = 1.0 / vt
+    X["vth_vt"] = d.vth0.values / vt
+    X["vds_vt"] = avds / vt
+    X["log_w"] = np.log10(d.w.values)
+    X["log_tox"] = np.log10(d.toxe.values)
+    X["vh_tox"] = vh / d.toxe.values * 1e-9
+    X["vl_tox"] = vl / d.toxe.values * 1e-9
+    X["vds_tox"] = avds / d.toxe.values * 1e-9
+    X["field_ox"] = d.vdd.values / d.toxe.values * 1e-9
+    X["wl_ratio"] = d.w.values / 22e-9
+    X["inv_avds"] = 1.0 / (avds + 0.02)
+    X["vov_avds"] = vov * avds
+    X["log_w_vov"] = np.log10(d.w.values) * vov
+    X["exp_avds"] = np.exp(-1.0 / (avds + 0.05))
+
     # Physics predictions
-    sub_th = phys["gate"][:4]
-    Fd = np.exp(ln_gate_fn(sub_th, vd, c))
-    Fs = np.exp(ln_gate_fn(sub_th, vs, c))
-    Fc = np.exp(ln_gate_tot(phys["gate"], c))
-    C = np.exp(ln_chan_fn(phys["channel"], c))
-    B = np.exp(ln_bulk_fn(phys["bulk"], c, C))
-
-    X["log_Fd"] = np.log10(np.maximum(Fd, 1e-40))
-    X["log_Fs"] = np.log10(np.maximum(Fs, 1e-40))
-    X["log_Fc"] = np.log10(np.maximum(Fc, 1e-40))
-    X["log_C"] = np.log10(np.maximum(C, 1e-40))
-    X["log_B"] = np.log10(np.maximum(B, 1e-40))
-
-    sg = np.sign(vds)
-    sg = np.where(sg == 0, 1.0, sg)
-
-    base = {
-        "id": np.log10(np.abs(sg * C + Fd) + 1e-40),
-        "ig": np.log10(np.maximum(Fc, 1e-40)),
-        "is": np.log10(np.abs(-sg * C + Fs) + 1e-40),
-        "ib": np.log10(np.maximum(B, 1e-40))
-    }
-    return X, base
+    X["log_phys_g"] = phys_feats["log_phys_g"]
+    X["log_phys_c"] = phys_feats["log_phys_c"]
+    X["log_phys_b"] = phys_feats["log_phys_b"]
+    return X
 
 
-def long_table(d, phys):
-    """Each SPICE row is repeated 4 times (one per current).
-    cur in {0=Id, 1=Ig, 2=Is, 3=Ib}. Target y is log10|I|."""
-    X, base = base_table(d, phys)
-    parts = []
-    for k, cur in enumerate(CURRENTS):
-        P = X.copy()
-        P["cur"] = k
-        for j, cc in enumerate(CURRENTS):
-            P["is_" + cc] = float(j == k)
-        P["phys"] = base[cur]
-        P["y"] = np.log10(np.maximum(np.abs(d[cur].values), 1e-40))
-        parts.append(P)
-    return pd.concat(parts, ignore_index=True)
+def make_targets(d):
+    """Targets: Id and Is as channel conductance log10(|I| / (|Vds| + 1e-6));
+    Ig as log10(Ig); Ib as log10(|Ib|)."""
+    avds = np.abs(d.vd.values - d.vs.values) + 1e-6
+    y = np.zeros((len(d), 4))
+    y[:, 0] = np.log10(np.maximum(np.abs(d.id.values) / avds, 1e-12))
+    y[:, 1] = np.log10(np.maximum(d.ig.values, 1e-25))
+    y[:, 2] = np.log10(np.maximum(np.abs(d["is"].values) / avds, 1e-12))
+    y[:, 3] = np.log10(np.maximum(np.abs(d.ib.values), 1e-25))
+    return y
 
 
-def feature_list(L):
-    return [c for c in L.columns if c != "y"]
+def fit_poly_base(X_tr, y_tr):
+    """Fits Degree-2 Polynomial RidgeCV multi-output base model."""
+    poly_base = make_pipeline(
+        StandardScaler(),
+        PolynomialFeatures(degree=2, include_bias=False),
+        StandardScaler(),
+        RidgeCV(alphas=np.logspace(-3, 3, 7), alpha_per_target=True)
+    )
+    poly_base.fit(X_tr, y_tr)
+    return poly_base
 
 
-def sign_rows(L):
-    """Rows of the long table belonging to Id (cur=0) or Is (cur=2) whose signs vary."""
-    return L.cur.isin([0, 2]).values
+def reconstruct_currents(y_pred, d, X, sign_model=None):
+    """Reconstruct physical currents in Amperes with correct signs."""
+    avds = np.abs(d.vd.values - d.vs.values) + 1e-6
+    vds = d.vd.values - d.vs.values
 
+    if sign_model is not None:
+        s_pred = sign_model.predict(X)
+        s_id = np.where(np.abs(vds) > 0.01, np.where(vds >= 0, 1.0, -1.0), np.where(s_pred == 1, 1.0, -1.0))
+    else:
+        s_id = np.where(vds >= 0, 1.0, -1.0)
+    s_is = -s_id
 
-def sign_target(d):
-    """Ground truth signs for Id and Is (1 for positive, 0 for negative)."""
-    return np.concatenate([(d.id.values > 0), (d["is"].values > 0)]).astype(int)
-
-
-def to_currents(log_mag, sign_pred, d):
-    """Reconstructs physical currents in Amperes from log magnitudes and signs."""
-    n = len(d)
-    mag = 10.0 ** log_mag
-    out = {}
-    s_id, s_is = sign_pred[:n], sign_pred[n:]
-
-    for k, cur in enumerate(CURRENTS):
-        m = mag[k * n:(k + 1) * n]
-        if cur == "ig":
-            out[cur] = +m           # Gate current is strictly positive in NMOS ON
-        elif cur == "ib":
-            out[cur] = -m           # Substrate current is strictly negative in NMOS ON
-        elif cur == "id":
-            out[cur] = np.where(s_id == 1, 1.0, -1.0) * m
-        elif cur == "is":
-            out[cur] = np.where(s_is == 1, 1.0, -1.0) * m
-    return pd.DataFrame(out, index=d.index)
+    pred = pd.DataFrame(index=d.index)
+    pred["id"] = s_id * avds * (10.0 ** y_pred[:, 0])
+    pred["ig"] = 10.0 ** y_pred[:, 1]
+    pred["is"] = s_is * avds * (10.0 ** y_pred[:, 2])
+    pred["ib"] = - (10.0 ** y_pred[:, 3])
+    return pred
 
 
 # ===========================================================================
 # 5. JUDGING METRICS & ACCURACY EVALUATION (Team-Standard Format)
 # ===========================================================================
 def pct_err(t, p, c):
-    """Relative error (%) relative to SPICE with operational noise floor."""
     return np.abs(p - t) / (np.abs(t) + FLOOR[c]) * 100.0
 
 
@@ -294,7 +294,6 @@ def metrics_block(true_df, pred_df):
         med_err = np.median(e)
         med_acc = 100.0 - med_err
 
-        # R2 score in physical domain and log domain
         r2_lin = float(r2_score(t, p))
         t_log = np.log10(np.maximum(np.abs(t), 1e-25))
         p_log = np.log10(np.maximum(np.abs(p), 1e-25))
@@ -346,7 +345,6 @@ def flat_errors(true_df, pred_df):
 
 
 def overfit_check(err_by_split, limit=1.5):
-    """Calculates validation/train and test/train ratios to confirm zero memorization."""
     rows = []
     for c in CURRENTS:
         tr_, va_, te_ = (err_by_split[s][c] for s in ("train", "validation", "test"))
@@ -381,7 +379,6 @@ LABEL = {"id": "$I_d$", "ig": "$I_g$", "is": "$I_s$", "ib": "$I_b$"}
 
 
 def plot_parity(true_df, pred_df, title, path, extra=None):
-    """Parity plots of predicted vs. SPICE reference on log-log scales."""
     fig, axes = plt.subplots(2, 2, figsize=(10, 9))
     for ax, c in zip(axes.flat, CURRENTS):
         if extra is not None:
@@ -413,7 +410,6 @@ def plot_parity(true_df, pred_df, title, path, extra=None):
 
 
 def plot_error_vs_current(true_df, pred_df, title, path):
-    """Error vs current magnitude."""
     fig, axes = plt.subplots(2, 2, figsize=(10, 9))
     for ax, c in zip(axes.flat, CURRENTS):
         t = true_df[c].values
@@ -435,7 +431,6 @@ def plot_error_vs_current(true_df, pred_df, title, path):
 
 
 def plot_split_bars(err_by_split, title, path):
-    """Train vs Validation vs Test side-by-side error bars."""
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
     x = np.arange(len(CURRENTS))
     w = 0.26
@@ -457,12 +452,11 @@ def plot_split_bars(err_by_split, title, path):
     plt.close(fig)
 
 
-def plot_error_cdf(true_by_split, pred_by_split, title, path):
-    """Cumulative distribution function (CDF) of errors per split."""
+def plot_error_cdf(splits, preds, title, path):
     fig, axes = plt.subplots(2, 2, figsize=(11, 9))
     for ax, c in zip(axes.flat, CURRENTS):
         for sp in ("train", "validation", "test"):
-            e = np.sort(pct_err(true_by_split[sp][c].values, pred_by_split[sp][c].values, c))
+            e = np.sort(pct_err(splits[sp][c].values, preds[sp][c].values, c))
             ax.plot(e, np.arange(1, len(e) + 1) / len(e) * 100.0, color=SPLIT_COL[sp], label=sp.capitalize(), lw=1.5)
         ax.axvline(1.0, color="g", ls="--", lw=1.2, label="1% Target")
         ax.axvline(5.0, color="orange", ls=":", lw=1.0, label="5% Threshold")
@@ -482,11 +476,10 @@ def plot_error_cdf(true_by_split, pred_by_split, title, path):
 
 
 def plot_learning_curve(curve, best_iter, title, path):
-    """Median % error vs number of boosting trees."""
     fig, ax = plt.subplots(figsize=(9, 5.5))
     for sp in ("train", "validation", "test"):
         ax.plot(curve["iters"], curve[sp], "-o", ms=3, color=SPLIT_COL[sp], label=sp.capitalize())
-    ax.axvline(best_iter, color="k", ls="--", lw=1.2, label=f"Early stopping ({best_iter} trees)")
+    ax.axvline(best_iter, color="k", ls="--", lw=1.2, label=f"Optimal ({best_iter} trees)")
     ax.axhline(1.0, color="g", ls=":", lw=1.2, label="1% Target")
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -500,33 +493,22 @@ def plot_learning_curve(curve, best_iter, title, path):
     plt.close(fig)
 
 
-def checkpoints(best_iter, n=25):
-    pts = np.unique(np.round(np.geomspace(10, max(best_iter, 11), n)).astype(int))
-    return [int(p) for p in pts if p <= best_iter]
-
-
 # ===========================================================================
 # 7. MODEL EVALUATION & REPORTING ENGINE
 # ===========================================================================
-def report_model(name, key, splits, tables, predict_log, predict_sign, best_iter,
-                 settings, importance=None, phys=None):
-    folder = name.lower().replace(" ", "_")
-    preds = {}
-    for sp, d in splits.items():
-        L = tables[sp]
-        preds[sp] = to_currents(predict_log(L), predict_sign(L[sign_rows(L)]), d)
+def report_hybrid_model(name, key, splits, preds, best_iter, settings,
+                        importance=None, phys=None, curve=None):
+    folder = key
     errs = {sp: flat_errors(splits[sp], preds[sp]) for sp in splits}
 
-    # Unified JSON Report
     report = {
         "pipeline": settings["pipeline"],
         "case": "NMOS ON (Vg = VDD, Vb = 0), 22nm_MGK, VDD = 0.9 V",
         "dataset": (f"{sum(len(d) for d in splits.values())} rows, split 70/15/15 (seed 42): "
                     f"train {len(splits['train'])}, validation {len(splits['validation'])}, test {len(splits['test'])}"),
         "features_count": settings["features_count"],
-        "physics_baseline": ("Semi-empirical MOSFET model (channel conduction with velocity saturation, "
-                            "multi-terminal gate tunneling, impact-ionization bulk current) fitted on training rows; "
-                            "the gradient-boosted ML model learns log10|I| minus physics log10|I|"),
+        "physics_baseline": ("Physics-informed polynomial base (degree 2 + RidgeCV) + decoupled residual gradient boosters "
+                             "with conductance target formulation for Id, Is and 3-component bulk model for Ib."),
         "accuracy_definition": ("per-row accuracy = 100 - |pred - SPICE| / (|SPICE| + Ifloor) * 100, floored at 0; "
                                "median accuracy = 100 - median error"),
         "noise_floors": FLOOR,
@@ -552,16 +534,10 @@ def report_model(name, key, splits, tables, predict_log, predict_sign, best_iter
                                                  index=False, encoding="utf-8-sig")
 
     # Learning Curve
-    its = checkpoints(best_iter)
-    curve = {"iters": its, "train": [], "validation": [], "test": []}
-    for k in its:
-        for sp, d in splits.items():
-            L = tables[sp]
-            P = to_currents(predict_log(L, k), predict_sign(L[sign_rows(L)]), d)
-            curve[sp].append(float(np.mean([np.median(pct_err(d[c].values, P[c].values, c)) for c in CURRENTS])))
-    save_json(curve, out_path(folder, "learning_curve.json"))
-    plot_learning_curve(curve, best_iter, f"{name} (NMOS ON): Learning Curve",
-                        out_path(folder, "overfit_learning_curve.png"))
+    if curve is not None:
+        save_json(curve, out_path(folder, "learning_curve.json"))
+        plot_learning_curve(curve, best_iter, f"{name} (NMOS ON): Learning Curve",
+                            out_path(folder, "overfit_learning_curve.png"))
 
     # Diagnostic Plots
     plot_split_bars(errs, f"{name} (NMOS ON): Train vs Validation vs Test Error",
@@ -583,7 +559,6 @@ def report_model(name, key, splits, tables, predict_log, predict_sign, best_iter
         fig.savefig(out_path(folder, "feature_importance.png"), dpi=200)
         plt.close(fig)
 
-    # Console Summary
     print(f"\n{name} — NMOS ON Error Summary Across Splits:")
     for sp in ("train", "validation", "test"):
         summary_str = " | ".join(

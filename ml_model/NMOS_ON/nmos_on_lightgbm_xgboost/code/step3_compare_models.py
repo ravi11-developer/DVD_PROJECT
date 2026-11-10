@@ -97,7 +97,6 @@ def draw_table_png(df, title, path):
     tab.set_fontsize(9)
     tab.scale(1.05, 1.4)
 
-    # Style header and rows
     for (r, c), cell in tab.get_celld().items():
         if r == 0:
             cell.set_facecolor("#1F77B4")
@@ -143,7 +142,7 @@ for ax, metric, title, logy in [
     if logy:
         ax.set_yscale("log")
     else:
-        ax.set_ylim(80, 101)
+        ax.set_ylim(85, 101)
 
 fig.suptitle("NMOS ON: LightGBM vs. XGBoost Performance Comparison", fontsize=13, fontweight="bold")
 fig.tight_layout()
@@ -162,7 +161,7 @@ for c in CURRENTS:
 
 combined_report = {
     "case": "NMOS ON (Vg = VDD, Vb = 0), 22nm_MGK, VDD = 0.9 V",
-    "description": "Physics-guided single residual model + sign classifier comparing LightGBM and XGBoost",
+    "description": "Physics-informed polynomial hybrid residual models comparing LightGBM and XGBoost",
     "dataset": rep["LightGBM"]["dataset"],
     "features_count": rep["LightGBM"]["features_count"],
     "lightgbm_hyperparameters": rep["LightGBM"]["hyperparameters"],

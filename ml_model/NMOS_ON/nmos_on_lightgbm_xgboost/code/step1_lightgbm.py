@@ -1,19 +1,15 @@
 """
-STEP 1 - LightGBM, Physics-Guided, ONE Model for Id, Ig, Is, Ib (NMOS ON)
+STEP 1 - LightGBM Physics-Informed Polynomial Hybrid Model for NMOS ON
 Project: ML-Driven PVT Variation Aware Leakage Estimation (22nm_MGK, VDD = 0.9 V)
 Case: NMOS ON (Vg = VDD, Vb = 0)
 
 Architecture:
-    * Compact semiconductor physics baseline predicts first estimate of log10|I|
-      for each terminal current (conduction, tunneling, bulk).
-    * ONE LightGBM model with Linear Trees (linear_tree=True) learns the correction
-      Delta = log10|I_SPICE| - log10|I_physics| across all 4 terminal currents.
-      Input "cur" (0=Id, 1=Ig, 2=Is, 3=Ib) tells the model which terminal to predict.
-    * Linear trees place a linear model in each leaf, completely eliminating staircase
-      approximation errors across the continuous Vd ≈ Vs boundary.
-    * A LightGBM binary classifier predicts the sign of Id and Is.
-      Ig is strictly positive and Ib is strictly negative for NMOS ON.
-    * Produces full deliverable metrics, JSON reports, overfit checks, and diagnostic plots.
+    * Compact semiconductor physics priors: velocity saturation channel conduction,
+      multi-terminal gate tunneling, and 3-component bulk model (junction + tunneling + impact ionization).
+    * Smooth Degree-2 Polynomial RidgeCV baseline captures continuous multivariate curvature.
+    * Decoupled LightGBM regressors trained on conductance targets for Id, Is and log targets for Ig, Ib.
+    * Objective="regression_l1" directly optimizes relative percentage error.
+    * Deterministic physical sign logic + sign classifier for near-zero crossing.
 
 Run:
     python step1_lightgbm.py
@@ -27,38 +23,35 @@ Outputs (in results/lightgbm/):
 import time
 import joblib
 import numpy as np
+import pandas as pd
 import lightgbm as lgb
 from nmos_on_common import (
-    load_split, fit_physics, long_table, feature_list, sign_rows,
-    sign_target, report_model, out_path, SEED
+    load_split, fit_physics, get_phys_preds, make_features, make_targets,
+    fit_poly_base, reconstruct_currents, report_hybrid_model, out_path,
+    CURRENTS, SEED
 )
 
-# ===========================================================================
-# HYPERPARAMETERS (Optimized for High Accuracy with Linear Trees)
-# ===========================================================================
+# Hyperparameters
 PARAMS = dict(
-    learning_rate=0.015,                # Fine gradient descent step
-    num_leaves=63,                      # High capacity for PVT cross-terms
-    min_child_samples=10,               # Minimum samples in leaf
-    linear_lambda=0.1,                  # L2 regularizer on straight lines inside leaves
-    subsample=0.80,                     # Row bagging fraction
-    colsample_bytree=0.90,              # Feature bagging fraction
-    reg_lambda=0.01,                    # L2 leaf penalty
-    max_bin=255,                        # Quantization resolution
+    objective="regression_l1",
+    learning_rate=0.02,
+    num_leaves=95,
+    min_child_samples=15,
+    reg_lambda=0.05,
+    subsample=0.85,
+    colsample_bytree=0.85,
 )
 
 FIXED = dict(
-    n_estimators=30000,
-    linear_tree=True,                   # Linear regression inside each leaf
-    subsample_freq=1,
+    n_estimators=6000,
     random_state=SEED,
     verbose=-1,
-    n_jobs=2                            # Deterministic results across any system
+    n_jobs=4
 )
-EARLY_STOP = 300
+EARLY_STOP = 200
 
 SIGN_PARAMS = dict(
-    n_estimators=5000,
+    n_estimators=1000,
     learning_rate=0.05,
     num_leaves=31,
     random_state=SEED,
@@ -66,11 +59,8 @@ SIGN_PARAMS = dict(
     n_jobs=2
 )
 
-# ===========================================================================
-# EXECUTION
-# ===========================================================================
 print("=" * 80)
-print("  STEP 1: LIGHTGBM PHYSICS-GUIDED MODEL FOR NMOS ON")
+print("  STEP 1: LIGHTGBM PHYSICS-INFORMED HYBRID MODEL FOR NMOS ON")
 print("=" * 80)
 
 df, tr, va, te = load_split()
@@ -78,63 +68,97 @@ print("Fitting semiconductor physics baseline on training rows...")
 phys = fit_physics(tr)
 
 splits = {"train": tr, "validation": va, "test": te}
-print("Constructing long tables (4 terminals per sample)...")
-tables = {sp: long_table(d, phys) for sp, d in splits.items()}
-FEAT = feature_list(tables["train"])
-LT, LV = tables["train"], tables["validation"]
+phys_feats = {sp: get_phys_preds(d, phys) for sp, d in splits.items()}
+X_splits = {sp: make_features(d, phys_feats[sp]) for sp, d in splits.items()}
+y_splits = {sp: make_targets(d) for sp, d in splits.items()}
+
+FEAT = list(X_splits["train"].columns)
 print(f"Data ready: Train {len(tr)} | Validation {len(va)} | Test {len(te)} | {len(FEAT)} features.")
 
 t0 = time.time()
-print("\n>>> Training Sign Classifier for Id and Is...")
-clf = lgb.LGBMClassifier(**SIGN_PARAMS)
-clf.fit(
-    LT.loc[sign_rows(LT), FEAT], sign_target(tr),
-    eval_set=[(LV.loc[sign_rows(LV), FEAT], sign_target(va))],
-    callbacks=[lgb.early_stopping(200, verbose=False)]
+print("\n>>> Training Sign Classifier for Id near zero-bias...")
+sign_clf = lgb.LGBMClassifier(**SIGN_PARAMS)
+sign_clf.fit(
+    X_splits["train"], tr.id.values > 0,
+    eval_set=[(X_splits["validation"], va.id.values > 0)],
+    callbacks=[lgb.early_stopping(50, verbose=False)]
 )
 
-print("\n>>> Training Physics-Guided Linear Tree LightGBM Regressor...")
-reg = lgb.LGBMRegressor(**FIXED, **PARAMS)
-reg.fit(
-    LT[FEAT], LT.y - LT.phys,
-    eval_set=[(LV[FEAT], LV.y - LV.phys)],
-    categorical_feature=["cur"],
-    callbacks=[lgb.early_stopping(EARLY_STOP, verbose=False)]
-)
-best = reg.best_iteration_
+print("\n>>> Fitting Degree-2 Polynomial RidgeCV Baseline...")
+poly_base = fit_poly_base(X_splits["train"], y_splits["train"])
+poly_preds = {sp: poly_base.predict(X_splits[sp]) for sp in splits}
+resid = {sp: y_splits[sp] - poly_preds[sp] for sp in splits}
+
+print("\n>>> Training Decoupled LightGBM Regressors on Residuals...")
+models = {}
+trees_used = {}
+for j, c in enumerate(CURRENTS):
+    print(f"  Training LightGBM on {c.upper()} residual...")
+    reg = lgb.LGBMRegressor(**PARAMS, **FIXED)
+    reg.fit(
+        X_splits["train"], resid["train"][:, j],
+        eval_set=[(X_splits["validation"], resid["validation"][:, j])],
+        callbacks=[lgb.early_stopping(EARLY_STOP, verbose=False)]
+    )
+    models[c] = reg
+    trees_used[c] = reg.best_iteration_
+    print(f"  ✓ {c.upper()} best iteration: {reg.best_iteration_}")
+
 elapsed = time.time() - t0
-print(f"✓ Training complete in {elapsed:.1f} s! Best trees: {best}, Sign model trees: {clf.best_iteration_}")
+avg_trees = int(np.mean(list(trees_used.values())))
+print(f"✓ Training complete in {elapsed:.1f} s! Average trees: {avg_trees}")
 
+# Reconstruct predictions across splits
+pred_currents = {}
+for sp in splits:
+    y_pred_log = np.zeros_like(poly_preds[sp])
+    for j, c in enumerate(CURRENTS):
+        y_pred_log[:, j] = poly_preds[sp][:, j] + models[c].predict(X_splits[sp])
+    pred_currents[sp] = reconstruct_currents(y_pred_log, splits[sp], X_splits[sp], sign_clf)
 
-def predict_log(L, n_trees=None):
-    return reg.predict(L[FEAT], num_iteration=n_trees or best) + L.phys.values
-
-
-def predict_sign(Ls):
-    return clf.predict(Ls[FEAT])
-
+# Feature importance (summed gain across all 4 terminal models)
+importance_vals = np.zeros(len(FEAT))
+for c in CURRENTS:
+    importance_vals += models[c].booster_.feature_importance(importance_type="gain")
 
 settings = {
-    "pipeline": "NMOS ON - LightGBM Linear Tree, physics-guided, single model for Id/Ig/Is/Ib + sign classifier",
+    "pipeline": "NMOS ON - LightGBM Physics-Informed Polynomial Hybrid Model (Decoupled Conductance & Leakage)",
     "features_count": len(FEAT),
-    "params": {**PARAMS, **{k: v for k, v in FIXED.items() if k != "verbose"}, "early_stopping_rounds": EARLY_STOP},
-    "tuning": "Linear Tree formulation (linear_tree=True) with early stopping on validation median error"
+    "params": {**PARAMS, **FIXED, "early_stopping_rounds": EARLY_STOP},
+    "tuning": "Decoupled L1 regression on polynomial residuals with early stopping"
 }
 
+# Generate learning curve across iterations
+curve_checkpoints = [50, 100, 200, 400, 800, 1500, 3000, avg_trees]
+curve_checkpoints = sorted(list(set([k for k in curve_checkpoints if k <= avg_trees])))
+if avg_trees not in curve_checkpoints:
+    curve_checkpoints.append(avg_trees)
+
+curve = {"iters": curve_checkpoints, "train": [], "validation": [], "test": []}
+for k in curve_checkpoints:
+    for sp in splits:
+        y_k = np.zeros_like(poly_preds[sp])
+        for j, c in enumerate(CURRENTS):
+            num_it = min(k, models[c].best_iteration_)
+            y_k[:, j] = poly_preds[sp][:, j] + models[c].predict(X_splits[sp], num_iteration=num_it)
+        P_k = reconstruct_currents(y_k, splits[sp], X_splits[sp], sign_clf)
+        med_errs = [float(np.median(np.abs(P_k[c].values - splits[sp][c].values) / (np.abs(splits[sp][c].values) + 1e-10 if c in ["id","is"] else np.abs(splits[sp][c].values) + 1e-15) * 100.0)) for c in CURRENTS]
+        curve[sp].append(float(np.mean(med_errs)))
+
 print("\n>>> Generating Full Deliverables, Metrics Tables, and Diagnostic Plots...")
-report_model(
-    "LightGBM", "lightgbm", splits, tables, predict_log, predict_sign, best, settings,
-    importance=(FEAT, reg.booster_.feature_importance(importance_type="gain")),
-    phys=phys
+report_hybrid_model(
+    "LightGBM", "lightgbm", splits, pred_currents, avg_trees, settings,
+    importance=(FEAT, importance_vals), phys=phys, curve=curve
 )
 
 # Save artifact models
 model_payload = {
-    "model": reg,
-    "sign_model": clf,
-    "features": FEAT,
+    "poly_base": poly_base,
+    "models": models,
+    "sign_model": sign_clf,
     "physics": phys,
-    "best_iteration": best
+    "features": FEAT,
+    "trees_used": trees_used
 }
 joblib.dump(model_payload, out_path("lightgbm", "lightgbm_model.joblib"))
 print(f"✓ Model payload saved to: {out_path('lightgbm', 'lightgbm_model.joblib')}")
