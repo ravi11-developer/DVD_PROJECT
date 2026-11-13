@@ -1,0 +1,1499 @@
+* 3-bit CLA - 22nm_MGK, Wn=4.40e-08 Wp=8.80e-08
+.include "/home/ravi-sahu/Documents/5_sem/DVD/Project/model/22nm_MGK.pm"
+.options gmin=1e-18 abstol=1e-18 reltol=1e-6 vntol=1e-9
+
+* 39 gates, 186 transistors
+Mxp0a_PA xp0_n1 a0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0a_PB xp0_n1 b0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0a_NA xp0_n1 a0 xp0a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0a_NB xp0a_x b0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0b_PA xp0_n2 a0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0b_PB xp0_n2 xp0_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0b_NA xp0_n2 a0 xp0b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0b_NB xp0b_x xp0_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0c_PA xp0_n3 b0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0c_PB xp0_n3 xp0_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0c_NA xp0_n3 b0 xp0c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0c_NB xp0c_x xp0_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0d_PA p0 xp0_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0d_PB p0 xp0_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp0d_NA p0 xp0_n2 xp0d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp0d_NB xp0d_x xp0_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag0_PA ag0_nd a0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag0_PB ag0_nd b0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag0_NA ag0_nd a0 ag0_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag0_NB ag0_x b0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag0_PI g0 ag0_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag0_NI g0 ag0_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1a_PA xp1_n1 a1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1a_PB xp1_n1 b1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1a_NA xp1_n1 a1 xp1a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1a_NB xp1a_x b1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1b_PA xp1_n2 a1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1b_PB xp1_n2 xp1_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1b_NA xp1_n2 a1 xp1b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1b_NB xp1b_x xp1_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1c_PA xp1_n3 b1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1c_PB xp1_n3 xp1_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1c_NA xp1_n3 b1 xp1c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1c_NB xp1c_x xp1_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1d_PA p1 xp1_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1d_PB p1 xp1_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp1d_NA p1 xp1_n2 xp1d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp1d_NB xp1d_x xp1_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag1_PA ag1_nd a1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag1_PB ag1_nd b1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag1_NA ag1_nd a1 ag1_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag1_NB ag1_x b1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag1_PI g1 ag1_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag1_NI g1 ag1_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2a_PA xp2_n1 a2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2a_PB xp2_n1 b2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2a_NA xp2_n1 a2 xp2a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2a_NB xp2a_x b2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2b_PA xp2_n2 a2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2b_PB xp2_n2 xp2_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2b_NA xp2_n2 a2 xp2b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2b_NB xp2b_x xp2_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2c_PA xp2_n3 b2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2c_PB xp2_n3 xp2_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2c_NA xp2_n3 b2 xp2c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2c_NB xp2c_x xp2_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2d_PA p2 xp2_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2d_PB p2 xp2_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxp2d_NA p2 xp2_n2 xp2d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxp2d_NB xp2d_x xp2_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag2_PA ag2_nd a2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag2_PB ag2_nd b2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag2_NA ag2_nd a2 ag2_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag2_NB ag2_x b2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mag2_PI g2 ag2_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mag2_NI g2 ag2_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat0_PA at0_nd p0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat0_PB at0_nd c0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat0_NA at0_nd p0 at0_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat0_NB at0_x c0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat0_PI t0 at0_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat0_NI t0 at0_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc1_PA oc1_y g0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc1_PB oc1_nr t0 oc1_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc1_NA oc1_nr g0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc1_NB oc1_nr t0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc1_PI c1 oc1_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc1_NI c1 oc1_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mau1_PA au1_nd p1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mau1_PB au1_nd g0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mau1_NA au1_nd p1 au1_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mau1_NB au1_x g0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mau1_PI u1 au1_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mau1_NI u1 au1_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat1_PA at1_nd p1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat1_PB at1_nd t0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat1_NA at1_nd p1 at1_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat1_NB at1_x t0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mat1_PI t1 at1_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mat1_NI t1 at1_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2a_PA oc2a_y g1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2a_PB oc2a_nr u1 oc2a_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2a_NA oc2a_nr g1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2a_NB oc2a_nr u1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2a_PI o2a oc2a_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2a_NI o2a oc2a_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2_PA oc2_y o2a vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2_PB oc2_nr t1 oc2_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2_NA oc2_nr o2a 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2_NB oc2_nr t1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc2_PI c2 oc2_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc2_NI c2 oc2_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mav2_PA av2_nd p2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mav2_PB av2_nd g1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mav2_NA av2_nd p2 av2_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mav2_NB av2_x g1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mav2_PI v2 av2_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mav2_NI v2 av2_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Maw2_PA aw2_nd p2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Maw2_PB aw2_nd u1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Maw2_NA aw2_nd p2 aw2_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Maw2_NB aw2_x u1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Maw2_PI w2 aw2_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Maw2_NI w2 aw2_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Max2_PA ax2_nd p2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Max2_PB ax2_nd t1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Max2_NA ax2_nd p2 ax2_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Max2_NB ax2_x t1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Max2_PI x2 ax2_nd vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Max2_NI x2 ax2_nd 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3a_PA oc3a_y g2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3a_PB oc3a_nr v2 oc3a_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3a_NA oc3a_nr g2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3a_NB oc3a_nr v2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3a_PI o3a oc3a_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3a_NI o3a oc3a_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3b_PA oc3b_y o3a vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3b_PB oc3b_nr w2 oc3b_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3b_NA oc3b_nr o3a 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3b_NB oc3b_nr w2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3b_PI o3b oc3b_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3b_NI o3b oc3b_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3_PA oc3_y o3b vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3_PB oc3_nr x2 oc3_y vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3_NA oc3_nr o3b 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3_NB oc3_nr x2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Moc3_PI c3 oc3_nr vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Moc3_NI c3 oc3_nr 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0a_PA xs0_n1 p0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0a_PB xs0_n1 c0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0a_NA xs0_n1 p0 xs0a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0a_NB xs0a_x c0 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0b_PA xs0_n2 p0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0b_PB xs0_n2 xs0_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0b_NA xs0_n2 p0 xs0b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0b_NB xs0b_x xs0_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0c_PA xs0_n3 c0 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0c_PB xs0_n3 xs0_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0c_NA xs0_n3 c0 xs0c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0c_NB xs0c_x xs0_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0d_PA s0 xs0_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0d_PB s0 xs0_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs0d_NA s0 xs0_n2 xs0d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs0d_NB xs0d_x xs0_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1a_PA xs1_n1 p1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1a_PB xs1_n1 c1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1a_NA xs1_n1 p1 xs1a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1a_NB xs1a_x c1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1b_PA xs1_n2 p1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1b_PB xs1_n2 xs1_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1b_NA xs1_n2 p1 xs1b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1b_NB xs1b_x xs1_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1c_PA xs1_n3 c1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1c_PB xs1_n3 xs1_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1c_NA xs1_n3 c1 xs1c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1c_NB xs1c_x xs1_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1d_PA s1 xs1_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1d_PB s1 xs1_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs1d_NA s1 xs1_n2 xs1d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs1d_NB xs1d_x xs1_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2a_PA xs2_n1 p2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2a_PB xs2_n1 c2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2a_NA xs2_n1 p2 xs2a_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2a_NB xs2a_x c2 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2b_PA xs2_n2 p2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2b_PB xs2_n2 xs2_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2b_NA xs2_n2 p2 xs2b_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2b_NB xs2b_x xs2_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2c_PA xs2_n3 c2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2c_PB xs2_n3 xs2_n1 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2c_NA xs2_n3 c2 xs2c_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2c_NB xs2c_x xs2_n1 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2d_PA s2 xs2_n2 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2d_PB s2 xs2_n3 vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+Mxs2d_NA s2 xs2_n2 xs2d_x 0 nmos W=4.4000e-08 L=2.2000e-08
+Mxs2d_NB xs2d_x xs2_n3 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Vdd vdd 0 0
+Va0 a0 0 0
+Va1 a1 0 0
+Va2 a2 0 0
+Vb0 b0 0 0
+Vb1 b1 0 0
+Vb2 b2 0 0
+Vc0 c0 0 0
+
+.control
+set wr_singlescale
+set appendwrite
+set numdgt=12
+altermod nmos vth0=3.6920000000e-01
+altermod nmos toxe=6.5000000000e-10
+altermod nmos ndep=1.2000000000e+19
+altermod nmos u0=1.8100000000e-02
+altermod nmos xj=7.2000000000e-09
+altermod pmos vth0=-2.5399000000e-01
+altermod pmos toxe=6.7000000000e-10
+altermod pmos ndep=4.4000000000e+18
+altermod pmos u0=2.3000000000e-03
+altermod pmos xj=7.2000000000e-09
+alter vdd dc=9.0000000000e-01
+option temp=2.7000000000e+01
+let tc = 2.7000000000e+01
+* vector 0: a0=0 a1=0 a2=0 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 1: a0=1 a1=0 a2=0 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 2: a0=0 a1=1 a2=0 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 3: a0=1 a1=1 a2=0 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 4: a0=0 a1=0 a2=1 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 5: a0=1 a1=0 a2=1 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 6: a0=0 a1=1 a2=1 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 7: a0=1 a1=1 a2=1 b0=0 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 8: a0=0 a1=0 a2=0 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 9: a0=1 a1=0 a2=0 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 10: a0=0 a1=1 a2=0 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 11: a0=1 a1=1 a2=0 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 12: a0=0 a1=0 a2=1 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 13: a0=1 a1=0 a2=1 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 14: a0=0 a1=1 a2=1 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 15: a0=1 a1=1 a2=1 b0=1 b1=0 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 16: a0=0 a1=0 a2=0 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 17: a0=1 a1=0 a2=0 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 18: a0=0 a1=1 a2=0 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 19: a0=1 a1=1 a2=0 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 20: a0=0 a1=0 a2=1 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 21: a0=1 a1=0 a2=1 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 22: a0=0 a1=1 a2=1 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 23: a0=1 a1=1 a2=1 b0=0 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 24: a0=0 a1=0 a2=0 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 25: a0=1 a1=0 a2=0 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 26: a0=0 a1=1 a2=0 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 27: a0=1 a1=1 a2=0 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 28: a0=0 a1=0 a2=1 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 29: a0=1 a1=0 a2=1 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 30: a0=0 a1=1 a2=1 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 31: a0=1 a1=1 a2=1 b0=1 b1=1 b2=0 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 32: a0=0 a1=0 a2=0 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 33: a0=1 a1=0 a2=0 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 34: a0=0 a1=1 a2=0 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 35: a0=1 a1=1 a2=0 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 36: a0=0 a1=0 a2=1 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 37: a0=1 a1=0 a2=1 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 38: a0=0 a1=1 a2=1 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 39: a0=1 a1=1 a2=1 b0=0 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 40: a0=0 a1=0 a2=0 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 41: a0=1 a1=0 a2=0 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 42: a0=0 a1=1 a2=0 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 43: a0=1 a1=1 a2=0 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 44: a0=0 a1=0 a2=1 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 45: a0=1 a1=0 a2=1 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 46: a0=0 a1=1 a2=1 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 47: a0=1 a1=1 a2=1 b0=1 b1=0 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 48: a0=0 a1=0 a2=0 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 49: a0=1 a1=0 a2=0 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 50: a0=0 a1=1 a2=0 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 51: a0=1 a1=1 a2=0 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 52: a0=0 a1=0 a2=1 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 53: a0=1 a1=0 a2=1 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 54: a0=0 a1=1 a2=1 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 55: a0=1 a1=1 a2=1 b0=0 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 56: a0=0 a1=0 a2=0 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 57: a0=1 a1=0 a2=0 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 58: a0=0 a1=1 a2=0 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 59: a0=1 a1=1 a2=0 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 60: a0=0 a1=0 a2=1 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 61: a0=1 a1=0 a2=1 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 62: a0=0 a1=1 a2=1 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 63: a0=1 a1=1 a2=1 b0=1 b1=1 b2=1 c0=0
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=0.0000000000e+00
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 64: a0=0 a1=0 a2=0 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 65: a0=1 a1=0 a2=0 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 66: a0=0 a1=1 a2=0 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 67: a0=1 a1=1 a2=0 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 68: a0=0 a1=0 a2=1 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 69: a0=1 a1=0 a2=1 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 70: a0=0 a1=1 a2=1 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 71: a0=1 a1=1 a2=1 b0=0 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 72: a0=0 a1=0 a2=0 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 73: a0=1 a1=0 a2=0 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 74: a0=0 a1=1 a2=0 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 75: a0=1 a1=1 a2=0 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 76: a0=0 a1=0 a2=1 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 77: a0=1 a1=0 a2=1 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 78: a0=0 a1=1 a2=1 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 79: a0=1 a1=1 a2=1 b0=1 b1=0 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 80: a0=0 a1=0 a2=0 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 81: a0=1 a1=0 a2=0 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 82: a0=0 a1=1 a2=0 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 83: a0=1 a1=1 a2=0 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 84: a0=0 a1=0 a2=1 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 85: a0=1 a1=0 a2=1 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 86: a0=0 a1=1 a2=1 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 87: a0=1 a1=1 a2=1 b0=0 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 88: a0=0 a1=0 a2=0 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 89: a0=1 a1=0 a2=0 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 90: a0=0 a1=1 a2=0 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 91: a0=1 a1=1 a2=0 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 92: a0=0 a1=0 a2=1 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 93: a0=1 a1=0 a2=1 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 94: a0=0 a1=1 a2=1 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 95: a0=1 a1=1 a2=1 b0=1 b1=1 b2=0 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=0.0000000000e+00
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 96: a0=0 a1=0 a2=0 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 97: a0=1 a1=0 a2=0 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 98: a0=0 a1=1 a2=0 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 99: a0=1 a1=1 a2=0 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 100: a0=0 a1=0 a2=1 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 101: a0=1 a1=0 a2=1 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 102: a0=0 a1=1 a2=1 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 103: a0=1 a1=1 a2=1 b0=0 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 104: a0=0 a1=0 a2=0 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 105: a0=1 a1=0 a2=0 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 106: a0=0 a1=1 a2=0 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 107: a0=1 a1=1 a2=0 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 108: a0=0 a1=0 a2=1 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 109: a0=1 a1=0 a2=1 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 110: a0=0 a1=1 a2=1 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 111: a0=1 a1=1 a2=1 b0=1 b1=0 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=0.0000000000e+00
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 112: a0=0 a1=0 a2=0 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 113: a0=1 a1=0 a2=0 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 114: a0=0 a1=1 a2=0 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 115: a0=1 a1=1 a2=0 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 116: a0=0 a1=0 a2=1 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 117: a0=1 a1=0 a2=1 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 118: a0=0 a1=1 a2=1 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 119: a0=1 a1=1 a2=1 b0=0 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=0.0000000000e+00
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 120: a0=0 a1=0 a2=0 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 121: a0=1 a1=0 a2=0 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 122: a0=0 a1=1 a2=0 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 123: a0=1 a1=1 a2=0 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=0.0000000000e+00
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 124: a0=0 a1=0 a2=1 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 125: a0=1 a1=0 a2=1 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=0.0000000000e+00
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 126: a0=0 a1=1 a2=1 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=0.0000000000e+00
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+* vector 127: a0=1 a1=1 a2=1 b0=1 b1=1 b2=1 c0=1
+alter va0 dc=9.0000000000e-01
+alter va1 dc=9.0000000000e-01
+alter va2 dc=9.0000000000e-01
+alter vb0 dc=9.0000000000e-01
+alter vb1 dc=9.0000000000e-01
+alter vb2 dc=9.0000000000e-01
+alter vc0 dc=9.0000000000e-01
+op
+print v(s0) v(s1) v(s2) v(c3) i(vdd)
+.endc
+.end

@@ -1,0 +1,51 @@
+* NOR2 - 22nm_MGK, Wn=4.40e-08 Wp=8.80e-08
+.include "/home/ravi-sahu/Documents/5_sem/DVD/Project/model/22nm_MGK.pm"
+.options gmin=1e-18 abstol=1e-18 reltol=1e-6 vntol=1e-9
+
+MPA y a vdd vdd pmos W=8.8000e-08 L=2.2000e-08
+MPB out b y vdd pmos W=8.8000e-08 L=2.2000e-08
+MNA out a 0 0 nmos W=4.4000e-08 L=2.2000e-08
+MNB out b 0 0 nmos W=4.4000e-08 L=2.2000e-08
+Vdd vdd 0 0
+Va a 0 0
+Vb b 0 0
+
+.control
+set wr_singlescale
+set appendwrite
+set numdgt=12
+altermod nmos vth0=3.6920000000e-01
+altermod nmos toxe=6.5000000000e-10
+altermod nmos ndep=1.2000000000e+19
+altermod nmos u0=1.8100000000e-02
+altermod nmos xj=7.2000000000e-09
+altermod pmos vth0=-2.5399000000e-01
+altermod pmos toxe=6.7000000000e-10
+altermod pmos ndep=4.4000000000e+18
+altermod pmos u0=2.3000000000e-03
+altermod pmos xj=7.2000000000e-09
+alter vdd dc=9.0000000000e-01
+option temp=2.7000000000e+01
+let tc = 2.7000000000e+01
+* inputs 00
+alter va dc=0.0000000000e+00
+alter vb dc=0.0000000000e+00
+op
+print v(a) v(b) v(out) v(y) i(vdd) i(va) i(vb)
+* inputs 01
+alter va dc=0.0000000000e+00
+alter vb dc=9.0000000000e-01
+op
+print v(a) v(b) v(out) v(y) i(vdd) i(va) i(vb)
+* inputs 10
+alter va dc=9.0000000000e-01
+alter vb dc=0.0000000000e+00
+op
+print v(a) v(b) v(out) v(y) i(vdd) i(va) i(vb)
+* inputs 11
+alter va dc=9.0000000000e-01
+alter vb dc=9.0000000000e-01
+op
+print v(a) v(b) v(out) v(y) i(vdd) i(va) i(vb)
+.endc
+.end
