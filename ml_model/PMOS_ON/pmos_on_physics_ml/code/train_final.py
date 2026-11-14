@@ -17,13 +17,14 @@ Data:  set PMOS_ON_CSV to your pmos_on.csv path.
 import os, time, numpy as np, pandas as pd, joblib, lightgbm as lgb
 import pipeline as PL
 import physics_baseline_a as PA, physics_baseline_b as PBB
-from pon_common import load_split, CURRENTS
+from pon_common import load_split, load_test_aug, CURRENTS
 
 OUT = PL.OUT
 EVAL_ONLY = os.environ.get('EVAL_ONLY', '0') == '1'
 VERSIONS = [('a', PA), ('b', PBB)]
 
-def run_version(tag, mod, tr, va, te):
+def run_version(tag, mod, splits):
+    tr = dict(splits)['train']
     """Fit (or load) one physics version and its 3 LightGBM models; return predictions per split."""
     vdir = os.path.join(OUT, f'model_{tag}'); os.makedirs(vdir, exist_ok=True)
     PL.PB = mod                                   # pipeline uses this physics module
@@ -31,25 +32,31 @@ def run_version(tag, mod, tr, va, te):
         P = joblib.load(os.path.join(vdir, 'physics_params.joblib'))
     else:
         print(f'[{tag}] fitting physics on the training set ...', flush=True)
-        P = mod.fit_physics(tr); joblib.dump(P, os.path.join(vdir, 'physics_params.joblib'))
-    B = {k: PL.build_table(d, P) for k, d in (('train', tr), ('val', va), ('test', te))}
+        P = mod.fit_physics(tr[tr.index < 1_000_000]); joblib.dump(P, os.path.join(vdir, 'physics_params.joblib'))  # physics on the original training rows only; LightGBM uses all rows
+    B = {k: PL.build_table(d, P) for k, d in splits}
     F = [c for c in B['train']['L'].columns if c != 'y']; joblib.dump(F, os.path.join(vdir, 'feature_list.joblib'))
+    okt, okv = np.isfinite(B['train']['t']), np.isfinite(B['val']['t'])   # skip any NaN targets
     outs = {k: [] for k in B}
     for s in PL.SEEDS:
         path = os.path.join(vdir, f'lgbm_seed{s}.joblib')
+        cache = os.path.join(vdir, f'pred_cache_seed{s}.npz')     # written by train_parallel.py
+        if EVAL_ONLY and os.path.exists(cache) and set(np.load(cache).files) >= set(B):
+            z = np.load(cache)
+            for k in B: outs[k].append(z[k])
+            continue
         if EVAL_ONLY:
             reg = joblib.load(path)
         else:
             t0 = time.time()
             reg = lgb.LGBMRegressor(**PL.PARAMS, random_state=s).fit(
-                B['train']['L'][F], B['train']['t'], eval_set=[(B['val']['L'][F], B['val']['t'])],
+                B['train']['L'][F][okt], B['train']['t'][okt], eval_set=[(B['val']['L'][F][okv], B['val']['t'][okv])],
                 categorical_feature=['cur'], callbacks=[lgb.early_stopping(300, verbose=False)])
             joblib.dump(reg, path, compress=3)
             print(f'[{tag}] seed {s}: {reg.best_iteration_} trees, {time.time()-t0:.0f}s', flush=True)
         for k in B: outs[k].append(reg.predict(B[k]['L'][F]))
     preds = {k: PL.to_currents(B[k], np.mean(outs[k], axis=0)) for k in B}
     phys = {}
-    for k, d in (('train', tr), ('val', va), ('test', te)):
+    for k, d in splits:
         ph = mod.components(P, d)
         phys[k] = pd.DataFrame({'id': ph['Id'], 'ig': ph['Ig'], 'is': ph['Is'], 'ib': ph['Ib']}, index=d.index)
     return preds, phys
@@ -57,10 +64,12 @@ def run_version(tag, mod, tr, va, te):
 def main():
     t0 = time.time()
     df, tr, va, te = load_split()
-    print(f'rows: train {len(tr)}, val {len(va)}, test {len(te)}', flush=True)
-    res = {tag: run_version(tag, mod, tr, va, te) for tag, mod in VERSIONS}
+    ta = load_test_aug()                              # test part of the extra (gate-region) samples
+    splits = [('train', tr), ('val', va), ('test', te)] + ([('test_aug', ta)] if ta is not None else [])
+    print(f'rows: train {len(tr)}, val {len(va)}, test {len(te)}, test_aug {0 if ta is None else len(ta)}', flush=True)
+    res = {tag: run_version(tag, mod, splits) for tag, mod in VERSIONS}
     rows = []
-    for k, d in (('train', tr), ('val', va), ('test', te)):
+    for k, d in splits:
         for tag in ('a', 'b'):
             rows += PL.metrics(d, res[tag][1][k], k, f'physics only ({tag.upper()})')
             rows += PL.metrics(d, res[tag][0][k], k, f'version {tag.upper()} (3-seed avg)')

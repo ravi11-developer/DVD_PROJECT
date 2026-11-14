@@ -56,6 +56,11 @@ def main():
         d.columns = d.columns.str.strip()
         (OUT / "01_datasets").mkdir(parents=True, exist_ok=True)
         d[COLUMNS].to_csv(OUT / "01_datasets" / f"{c.lower()}.csv", index=False)
+        aug = ROOT / "dataset" / c / f"{c.lower()}_aug.csv"          # extra gate-region samples
+        if aug.exists():
+            a = pd.read_csv(aug); a.columns = a.columns.str.strip()
+            (OUT / "01_datasets" / "extra_gate_region").mkdir(parents=True, exist_ok=True)
+            a[COLUMNS].to_csv(OUT / "01_datasets" / "extra_gate_region" / f"{c.lower()}_aug.csv", index=False)
 
     # 2. netlists
     for c in CASES:

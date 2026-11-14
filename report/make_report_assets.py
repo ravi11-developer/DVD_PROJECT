@@ -87,11 +87,12 @@ def data_check():
     for f in ("trend_off_current_vs_temp.png", "trend_off_current_vs_vth0.png", "trend_gate_current_vs_toxe.png"):
         copy_fig(dc / f, f)
     k = pd.read_csv(dc / "kcl_check.csv")
-    write_table("tab_kcl", ["Case", "Rows", r"max $|\Sigma I|$ (A)", r"mean $|\Sigma I|$ (A)",
-                            "median rel.", "max rel.", "Rows passing"],
-                [[r.case, r.rows, sci(r.max_abs_residual_A), sci(r.mean_abs_residual_A),
-                  sci(r.median_rel_residual), sci(r.max_rel_residual), r.rows_passing] for r in k.itertuples()],
-                "lrrrrrr")
+    write_table("tab_kcl", ["Case", r"max $|\Sigma I|$ (A)", r"mean $|\Sigma I|$ (A)",
+                            "median rel.", "max rel.", "All pass"],
+                [[r.case, sci(r.max_abs_residual_A), sci(r.mean_abs_residual_A),
+                  sci(r.median_rel_residual), sci(r.max_rel_residual),
+                  "yes" if r.rows_passing == r.rows else "no"] for r in k.itertuples()],
+                "lrrrrr")
     num("KclWorstRel", sci(k.max_rel_residual.max()), "{}")
     num("KclWorstAbs", sci(k.max_abs_residual_A.max()), "{}")
     t = pd.read_csv(dc / "trend_summary.csv")
@@ -136,6 +137,7 @@ def models():
     sel = ROOT / "ml_model/PMOS_OFF/model_selection.csv"
     s = pd.read_csv(sel)
     piv = s.pivot(index="current", columns="model", values="val_mean_accuracy_pct").loc[["ID", "IG", "IS", "IB"]]
+    piv.columns = [c.split(" (")[0] for c in piv.columns]           # drop file names from the headers
     cols = list(piv.columns)
     write_table("tab_pmos_off_selection", ["Current"] + [tex_escape(c) for c in cols],
                 [[r"$I_{" + i[1].lower() + "}$"] + [f"{piv.loc[i, c]:.2f}" for c in cols] for i in piv.index],
@@ -147,7 +149,7 @@ def gates():
     ok = backend(GC / "data/gate_ml.csv") == "ml"
     for f in names:
         copy_fig(GC / "results/gate" / f, f) if ok else (FIG / f).unlink(missing_ok=True)
-    keys = ["GateMeanAcc", "GateMedErr", "GatePninetyfive", "GateMaxErr", "GateBias", "GateBest", "GateWorst",
+    keys = ["GateWorstBias", "GateMeanAcc", "GateMedErr", "GatePninetyfive", "GateMaxErr", "GateBias", "GateBest", "GateWorst",
             "GateWorstAcc", "GateWorstPninetyfive", "GateBestGate", "GateWorstGate", "GateErrHot", "GateErrCold",
             "GateNinetyNineCount"]
     if not ok:
@@ -155,7 +157,7 @@ def gates():
         pending_table("tab_gate", "Gate results pending: run the ML gate stage (\\texttt{./run_all.sh from gates}).")
         pending_table("tab_gate_by_gate", "pending")
         pending_table("tab_transistor_in_gate", "pending")
-        for k in ("PmosOnShare", "NmosOnShare", "OnShare", "OnVdsMedian", "OnVdsNinety", "OnTrainSmallVds"): num(k, PENDING, "{}")
+        for k in ("PmosOffShare", "PmosOnShare", "NmosOnShare", "OnShare", "OnVdsMedian", "OnVdsNinety", "OnTrainSmallVds"): num(k, PENDING, "{}")
         notes.append("gate results pending (no ML gate run yet)")
         return
     g = pd.read_csv(GC / "results/gate/gate_results.csv", dtype={"inputs": str})
@@ -175,6 +177,7 @@ def gates():
     best, worst = cases.loc[cases.median_err_pct.idxmin()], cases.loc[cases.mean_acc_pct.idxmin()]
     num("GateBest", f"{best.label} (median {best.median_err_pct:.3f}\\,\\%)", "{}")
     num("GateWorst", worst.label, "{}"); num("GateWorstAcc", worst.mean_acc_pct)
+    num("GateWorstBias", worst.bias_pct, "{:+.2f}")
     num("GateWorstPninetyfive", worst.p95_err_pct)
     num("GateNinetyNineCount", str(int((cases.mean_acc_pct >= 99).sum())))
     s = pd.read_csv(GC / "results/gate/gate_summary_by_gate.csv")
@@ -202,6 +205,7 @@ def transistors_in_gates():
     write_table("tab_transistor_in_gate", ["Case", r"$I_d$", r"$I_g$", r"$I_s$", r"$I_b$", "Share of gate error (\\%)"],
                 rows, "lrrrrr")
     num("PmosOnShare", share["pmos_on"], "{:.0f}"); num("NmosOnShare", share["nmos_on"], "{:.0f}")
+    num("PmosOffShare", share["pmos_off"], "{:.0f}")
     num("OnShare", share["pmos_on"] + share["nmos_on"], "{:.0f}")
     tr = pd.read_csv(GC / "data/gate_transistors_ml.csv")
     on = tr[tr.case.str.endswith("_on")]
@@ -249,9 +253,31 @@ def cla():
     num("ClaErrHot", np.median(e[d.temp >= 85]), "{:.3f}"); num("ClaErrCold", np.median(e[d.temp <= 0]), "{:.3f}")
 
 
+def augmentation():
+    """Before/after table of the gate-region data augmentation (ml_model/augmentation_effect.csv)."""
+    f = ROOT / "ml_model/augmentation_effect.csv"
+    if not f.exists():
+        pending_table("tab_augmentation", "pending"); return
+    a = pd.read_csv(f)
+    rows = []
+    for case in ("nmos_on", "nmos_off", "pmos_on", "pmos_off"):
+        for cur in ("ID", "IG", "IS", "IB"):
+            g = a[(a.case == case) & (a.current == cur)].set_index("split")
+            rows.append([case.upper().replace("_", " ") if cur == "ID" else "", r"$I_{" + cur[1].lower() + "}$",
+                         f"{g.loc['test_aug'].before_aug:.2f}", rf"\textbf{{{g.loc['test_aug'].after_aug:.2f}}}",
+                         f"{g.loc['test'].before_aug:.2f}", f"{g.loc['test'].after_aug:.2f}"])
+    write_table("tab_augmentation", ["Case", "Current", "Gate region before", "Gate region after",
+                                     "Orig. test before", "Orig. test after"], rows, "llrrrr")
+    on = a[a.case.str.endswith("_on") & a.current.isin(["ID", "IS"]) & (a.split == "test_aug")]
+    num("AugOnBeforeMin", on.before_aug.min()); num("AugOnBeforeMax", on.before_aug.max())
+    num("AugOnAfterMin", on.after_aug.min()); num("AugOnAfterMax", on.after_aug.max())
+    ta = a[a.split == "test_aug"]
+    num("AugAfterMin", ta.after_aug.min())
+
+
 def main():
     FIG.mkdir(exist_ok=True); GEN.mkdir(exist_ok=True)
-    data_check(); models(); gates(); cla()
+    data_check(); models(); gates(); cla(); augmentation()
     (GEN / "numbers.tex").write_text("% generated by make_report_assets.py - do not edit\n" +
                                      "".join(rf"\newcommand{{\{k}}}{{{v}}}" + "\n" for k, v in sorted(numbers.items())))
     print(f"figures   -> {FIG.relative_to(ROOT)}/  ({len(list(FIG.glob('*.png')))} files)")

@@ -5,7 +5,7 @@ downward from VDD (V' = VDD − V), negating every current and using |vth0| give
 structure, so the NMOS OFF physics + LightGBM pipeline is reused (`pmoff_common.mirror`). The only
 change in `physics_baseline.py` is the normalisation around the PMOS nominal values from
 `model/22nm_MGK.pm` (toxe 0.67 nm, |vth0| 0.25399 V, ndep 4.4e18, u0 0.0023, xj 7.2 nm).
-The split is the same 70/15/15 (seed 42) used by `../mlp.ipynb`.
+The split is the same 70/15/15 (seed 42) used by the earlier MLP model (removed; still in git history).
 
 ## How to run
 
@@ -22,7 +22,7 @@ Results go into `results/`: `metrics.csv`, `test_predictions.csv` (real PMOS OFF
 
 Validation mean accuracy (%), same split (`../model_selection.csv`):
 
-| Current | MLP ensemble (`../mlp.ipynb`) | physics + LightGBM (this folder) |
+| Current | MLP ensemble (removed `mlp.ipynb`) | physics + LightGBM (this folder) |
 |---|---|---|
 | I_D | 98.98 | **99.79** |
 | I_G | 99.67 | **99.94** |

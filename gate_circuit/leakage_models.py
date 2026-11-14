@@ -108,16 +108,17 @@ def _seed_average(pl_build, pl_to_currents, P, folder, d):
 # OFF-state physics uses ln(V) of the drain/source voltage (gate-edge tunnelling), so a terminal
 # exactly on the rail (source of an OFF transistor tied to GND / VDD inside a gate) gives ln(0).
 # Training data never has V = 0 exactly (closest: 7-31 uV), so such a terminal is moved RAIL_EPS
-# off the rail. 30 uV was chosen on 400 fresh single-transistor SPICE samples per OFF case with the
+# off the rail (both terminals shift together, so Vds is preserved). 30 uV was chosen on 400 fresh single-transistor SPICE samples per OFF case with the
 # source exactly on the rail (best Id accuracy; see README "Rail clamp").
 RAIL_EPS = 3e-5
 
 
 def _clamp_rail(d):
-    """In the OFF-state (Vg = Vb = 0) view: keep vd, vs >= RAIL_EPS."""
+    """In the OFF-state (Vg = Vb = 0) view: if a terminal is closer than RAIL_EPS to the rail, shift
+    BOTH terminals up by the same amount, so the lower one sits at RAIL_EPS and Vds is unchanged."""
     d = d.copy()
-    for v in ("vd", "vs"):
-        d[v] = np.maximum(d[v], RAIL_EPS)
+    shift = np.maximum(RAIL_EPS - np.minimum(d.vd, d.vs), 0.0)
+    d["vd"], d["vs"] = d.vd + shift, d.vs + shift
     return d
 
 

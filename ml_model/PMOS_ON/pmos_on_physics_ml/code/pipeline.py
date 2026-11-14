@@ -24,6 +24,7 @@ def build_table(d, P):
     common = pd.DataFrame({'vdd': d.vdd.values, 'temp': d.temp.values, 'log_w': np.log10(d.w.values),
         'vth0': d.vth0.values, 'toxe': d.toxe.values, 'ndep': d.ndep.values, 'u0': d.u0.values, 'xj': d.xj.values,
         'v_high': np.maximum(vd, vs), 'v_low': np.minimum(vd, vs), 'abs_vds': np.abs(vd - vs), 'inv_vt': 1 / vt,
+        'log_vds': np.log10(np.abs(vd - vs) + 1e-9),   # resolves uV..mV |Vds| (ON transistors inside gates)
         'vth_vt': d.vth0.values / vt, 'vds_vt': np.abs(vd - vs) / vt, 'log_C': np.log10(C), 'log_ibphys': np.log10(np.abs(Ib))})
     def frame(v_this, v_other, F_this, F_other, I_phys, cur, base, y):
         X = common.copy()
