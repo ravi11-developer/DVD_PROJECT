@@ -26,10 +26,19 @@ dataset/
 | `NMOS_ON/nmos_on_code`                   | `dataset/NMOS_ON/nmos_on.csv`    |
 | `NMOS_OFF/nmos_off_physics_ml`           | `dataset/NMOS_OFF/nmos_off.csv`  |
 | `PMOS_ON/pmos_on_physics_ml`             | `dataset/PMOS_ON/pmos_on.csv`    |
-| `PMOS_OFF/mlp.ipynb`                     | `dataset/PMOS_OFF/pmos_off.csv`  |
+| `PMOS_OFF/pmos_off_physics_ml`           | `dataset/PMOS_OFF/pmos_off.csv`  |
 
 The model code finds these paths on its own; an environment variable
-(`NMOS_ON_CSV`, `NMOS_OFF_CSV`, `PMOS_ON_CSV`) can override them.
+(`NMOS_ON_CSV`, `NMOS_OFF_CSV`, `PMOS_ON_CSV`, `PMOS_OFF_CSV`) can override them.
+
+## Extra gate-region samples (`<case>_aug.csv`)
+
+`05_augment_inputs.py` draws 5,000 extra samples per ON case and 3,000 per OFF case at the operating
+points transistors have inside gates: one terminal exactly on (or near) its source rail and |Vds|
+log-uniform from 1 µV to 30 mV (ON) or to VDD (OFF). They are simulated with the same
+`02_<case>_simulate.py --inputs <case>_aug_inputs.csv --output <case>_aug.csv --simdir sim_<case>_aug`.
+The model loaders add their 70/15/15 train/val parts to training and keep their test part as a
+separate gate-region test set; the original 10,000-row files and test sets are unchanged.
 
 ## Columns (`<case>.csv`)
 

@@ -26,12 +26,13 @@ Pipeline
 import os, time, json
 import numpy as np, pandas as pd, joblib, lightgbm as lgb
 from sklearn.metrics import r2_score
-from pmoff_common import load_split, pct_err, CURRENTS, K_Q
+from pmoff_common import load_split, load_test_aug, pct_err, CURRENTS, K_Q
 import physics_baseline as PB
 
 OUT = os.environ.get('PMOS_OFF_RESULTS', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'results'))
 os.makedirs(OUT, exist_ok=True)
 SEEDS = [42, 7, 123]
+EVAL_ONLY = os.environ.get('EVAL_ONLY', '0') == '1'   # 1 = load saved models, no training
 N_JOBS = 1          # 1 = exactly reproducible; -1 = faster (results may differ very slightly)
 PARAMS = dict(objective='huber', alpha=0.005, learning_rate=0.08, num_leaves=31, min_child_samples=20,
               linear_tree=True, linear_lambda=0.1, subsample=0.8, subsample_freq=1, colsample_bytree=0.9,
@@ -45,6 +46,7 @@ def build_table(d, P):
     common = pd.DataFrame({'vdd': d.vdd.values, 'temp': d.temp.values, 'log_w': np.log10(d.w.values),
         'vth0': d.vth0.values, 'toxe': d.toxe.values, 'ndep': d.ndep.values, 'u0': d.u0.values, 'xj': d.xj.values,
         'v_high': np.maximum(vd, vs), 'v_low': np.minimum(vd, vs), 'abs_vds': np.abs(vd - vs), 'inv_vt': 1 / vt,
+        'log_vds': np.log10(np.abs(vd - vs) + 1e-9),   # resolves uV..mV |Vds| (ON transistors inside gates)
         'vth_vt': d.vth0.values / vt, 'vds_vt': np.abs(vd - vs) / vt, 'log_C': np.log10(C), 'log_ibphys': np.log10(-Ib)})
     def frame(v_this, v_other, F_this, F_other, I_phys, cur, base, y):
         X = common.copy()
@@ -74,41 +76,66 @@ def to_currents(B, out):
 def metrics(d, p, split, model):
     rows = []
     for c in CURRENTS:
-        t, q = d[c].values, p[c].values; e = pct_err(t, q)
+        ok = np.isfinite(d[c].values)                 # noise-floor values of the extra samples are NaN
+        t, q = d[c].values[ok], p[c].values[ok]; e = pct_err(t, q)
         rows.append(dict(model=model, split=split, current=c.upper(), mean_accuracy=100 - np.minimum(e, 100).mean(),
             median_err=np.median(e), p95_err=np.percentile(e, 95), max_err=e.max(), within_1pct=(e < 1).mean() * 100,
             r2_log=r2_score(np.log10(np.abs(t)), np.log10(np.abs(q))), r2_linear=r2_score(t, q),
             sign_accuracy=(np.sign(q) == np.sign(t)).mean() * 100))
     return rows
 
+def _cached(path, keys):
+    """Predictions saved by train_parallel.py (pred_cache_seed*.npz) if they cover every split, else None."""
+    if os.path.exists(path):
+        z = np.load(path)
+        if set(z.files) >= set(keys):
+            return {k: z[k] for k in keys}
+    return None
+
 def main():
     t0 = time.time()
     df, tr, va, te = load_split()
-    print(f'rows: train {len(tr)}, val {len(va)}, test {len(te)}', flush=True)
-    print('Fitting physics formulas on the training set ...', flush=True)
-    P = PB.fit_physics(tr); joblib.dump(P, os.path.join(OUT, 'physics_params.joblib'))
+    ta = load_test_aug()                              # test part of the extra (gate-region) samples
+    splits = [('train', tr), ('val', va), ('test', te)] + ([('test_aug', ta)] if ta is not None else [])
+    print(f'rows: train {len(tr)}, val {len(va)}, test {len(te)}, test_aug {0 if ta is None else len(ta)}', flush=True)
+    if EVAL_ONLY:
+        P = joblib.load(os.path.join(OUT, 'physics_params.joblib'))
+    else:
+        print('Fitting physics formulas on the training set ...', flush=True)
+        P = PB.fit_physics(tr[tr.index < 1_000_000]); joblib.dump(P, os.path.join(OUT, 'physics_params.joblib'))  # physics on the original training rows only; LightGBM uses all rows
 
     rows = []
-    for split, d in [('train', tr), ('val', va), ('test', te)]:    # ablation: physics alone, no ML
+    for split, d in splits:                                         # ablation: physics alone, no ML
         ph = PB.components(P, d)
         rows += metrics(d, pd.DataFrame({'id': ph['Id'], 'ig': ph['Ig'], 'is': ph['Is'], 'ib': ph['Ib']}, index=d.index),
                         split, 'physics only')
 
-    BT, BV, BE = build_table(tr, P), build_table(va, P), build_table(te, P)
+    BS = {k: build_table(d, P) for k, d in splits}
+    BT, BV = BS['train'], BS['val']
     F = [c for c in BT['L'].columns if c != 'y']
-    outs = {k: [] for k in ('train', 'val', 'test')}
+    okt, okv = np.isfinite(BT['t']), np.isfinite(BV['t'])           # skip noise-floor (NaN) targets
+    outs = {k: [] for k in BS}
     for s in SEEDS:
         ts = time.time()
+        if EVAL_ONLY:
+            o = _cached(os.path.join(OUT, f'pred_cache_seed{s}.npz'), BS)
+            if o is None:
+                reg = joblib.load(os.path.join(OUT, f'lgbm_seed{s}.joblib'))
+                o = {k: reg.predict(B['L'][F]) for k, B in BS.items()}
+            for k in BS: outs[k].append(o[k])
+            print(f'seed {s}: loaded', flush=True)
+            continue
         reg = lgb.LGBMRegressor(**PARAMS, random_state=s).fit(
-            BT['L'][F], BT['t'], eval_set=[(BV['L'][F], BV['t'])], categorical_feature=['cur'],
+            BT['L'][F][okt], BT['t'][okt], eval_set=[(BV['L'][F][okv], BV['t'][okv])], categorical_feature=['cur'],
             callbacks=[lgb.early_stopping(300, verbose=False)])
         joblib.dump(reg, os.path.join(OUT, f'lgbm_seed{s}.joblib'), compress=3)
-        for k, B in (('train', BT), ('val', BV), ('test', BE)): outs[k].append(reg.predict(B['L'][F]))
+        for k, B in BS.items(): outs[k].append(reg.predict(B['L'][F]))
         print(f'seed {s}: {reg.best_iteration_} trees, {time.time()-ts:.0f}s', flush=True)
     joblib.dump(F, os.path.join(OUT, 'feature_list.joblib'))
 
     preds = {}
-    for k, B, d in (('train', BT, tr), ('val', BV, va), ('test', BE, te)):
+    for k, d in splits:
+        B = BS[k]
         preds[k] = to_currents(B, np.mean(outs[k], axis=0))
         rows += metrics(d, preds[k], k, 'physics + LightGBM (3-seed avg)')
     res = pd.DataFrame(rows); res.to_csv(os.path.join(OUT, 'metrics.csv'), index=False, float_format='%.5g')

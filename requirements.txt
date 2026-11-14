@@ -17,7 +17,3 @@ joblib==1.6.0
 
 # Plots
 matplotlib==3.10.9
-
-# Only for ml_model/PMOS_OFF/mlp.ipynb (the MLP kept as the PMOS OFF comparison)
-ipykernel==7.3.0
-nbconvert==7.17.2

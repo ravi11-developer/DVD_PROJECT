@@ -17,10 +17,44 @@ def mirror(df):
     for v in ('vd', 'vs', 'vg', 'vb'): m[v] = df.vdd - df[v]
     for c in CURRENTS: m[c] = -df[c]
     return m
-def load_split(seed=42):
-    df = pd.read_csv(DATA_CSV); df.columns = df.columns.str.strip()
-    i_tr, i_tmp = train_test_split(np.arange(len(df)), test_size=0.30, random_state=seed)
+AUG_CSV = os.environ.get('NMOS_ON_AUG_CSV', DATA_CSV.replace('.csv', '_aug.csv'))
+AUG_INDEX_OFFSET = 1_000_000          # keeps original and extra row labels distinct
+
+# Extra training samples at gate operating points (dataset/05_augment_inputs.py): split 70/15/15 with the
+# same seed; their train/val parts are ADDED to train/val, their test part is kept apart as "test_aug".
+# The original 10,000-row split (and therefore the original test set) is unchanged.
+
+def _split3(n, seed):
+    i_tr, i_tmp = train_test_split(np.arange(n), test_size=0.30, random_state=seed)
     i_va, i_te = train_test_split(i_tmp, test_size=0.50, random_state=seed)
-    m = mirror(df)
-    return m, m.iloc[i_tr], m.iloc[i_va], m.iloc[i_te]
+    return i_tr, i_va, i_te
+
+def _read(path):
+    df = pd.read_csv(path); df.columns = df.columns.str.strip()
+    return df
+
+def _aug():
+    if not os.path.exists(AUG_CSV):
+        return None
+    a = _read(AUG_CSV); a.index = a.index + AUG_INDEX_OFFSET
+    return a
+
+def load_split(seed=42):
+    """Mirrored view. train/val = original + extra samples; test = ORIGINAL test rows only."""
+    df = _read(DATA_CSV)
+    i_tr, i_va, i_te = _split3(len(df), seed)
+    tr, va, te = df.iloc[i_tr], df.iloc[i_va], df.iloc[i_te]
+    a = _aug()
+    if a is not None:
+        j_tr, j_va, _ = _split3(len(a), seed)
+        tr, va = pd.concat([tr, a.iloc[j_tr]]), pd.concat([va, a.iloc[j_va]])
+        df = pd.concat([df, a])
+    return mirror(df), mirror(tr), mirror(va), mirror(te)
+
+def load_test_aug(seed=42):
+    """Test part of the extra samples (mirrored view), or None if there are none."""
+    a = _aug()
+    if a is None:
+        return None
+    return mirror(a.iloc[_split3(len(a), seed)[2]])
 def pct_err(t, p): return np.abs(p - t) / np.abs(t) * 100

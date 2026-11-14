@@ -74,7 +74,8 @@ with the real models before reporting anything.
 Inside a gate the source of an OFF transistor sits exactly on a rail (NMOS: 0 V, PMOS: VDD). The OFF
 models' physics term uses ln(V) of the drain/source voltage, and the training data never contains
 V = 0 exactly (closest 7–31 µV), so `leakage_models.py` moves such a terminal `RAIL_EPS = 30 µV` off
-the rail. The value was chosen on 400 *fresh* single-transistor SPICE samples per OFF case with the
+the rail, shifting both terminals by the same amount so Vds is unchanged (the OFF training loaders apply
+the same rule). The value was chosen on 400 *fresh* single-transistor SPICE samples per OFF case with the
 source exactly on the rail (not on the gate results, which are evaluation-only):
 
 | ε | NMOS OFF Id acc. | PMOS OFF Id acc. |
@@ -85,6 +86,6 @@ source exactly on the rail (not on the gate results, which are evaluation-only):
 | 100 µV | 99.32 % | 99.39 % |
 | 300 µV | 99.04 % | 99.00 % |
 
-At the rail the OFF models are less accurate for Is and Ib (≈ 98.8 % / 97.5 %) than on their test sets,
+(Before the gate-region training samples were added,) at the rail the OFF models were less accurate for Is and Ib (≈ 98.8 % / 97.5 %) than on their test sets,
 because few training samples lie that close to a rail. Is (source on the rail) and Ib (~1e-14 A) hardly
 enter the VDD-side gate leakage; Id does.

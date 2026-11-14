@@ -79,8 +79,7 @@
 }
 
 % ---------------------------------------------------------------------------
-% Numbers and tables are generated from the project outputs by
-% make_report_assets.py (run: python report/make_report_assets.py).
+% Numbers and tables are generated automatically from the project outputs.
 % ---------------------------------------------------------------------------
 \input{generated/numbers.tex}
 \newcommand{\gentable}[1]{\resizebox{\linewidth}{!}{\input{generated/#1.tex}}}
@@ -133,13 +132,12 @@ gate and circuit leakage hierarchically from them:
     \item \textbf{Part A -- transistor models.} SPICE data for NMOS and PMOS in their ON and OFF
           states, and four models that predict all four terminal currents $(I_d, I_g, I_s, I_b)$.
     \item \textbf{Part B -- gates.} INV, NAND2, NOR2, AND2 and OR2 for every input combination at
-          200 random corners; leakage predicted only from the four transistor models and compared
-          with SPICE of the gate netlist.
-    \item \textbf{Part C -- test circuit.} A 3-bit carry-lookahead adder (CLA) composed from the gate
+          200 random corners, predicted from the transistor models and compared with SPICE.
+    \item \textbf{Part C -- test circuit.} A 3-bit carry-lookahead adder (CLA) built from the gate
           predictions and compared with SPICE of the complete netlist.
 \end{enumerate}
 
-Throughout, the error of one prediction is $e = |I_{ML}-I_{SPICE}|/|I_{SPICE}|$ (in \%), and the
+The error of one prediction is $e = |I_{ML}-I_{SPICE}|/|I_{SPICE}|$ (in \%), and the
 \emph{mean accuracy} is $100 - \operatorname{mean}(\min(e, 100\,\%))$. The target is a mean
 accuracy of up to 99\,\%.
 
@@ -152,7 +150,7 @@ accuracy of up to 99\,\%.
 \hline
 Item & Value \\
 \hline
-Model file & PTM \texttt{22nm\_MGK.pm} (BSIM4, metal gate / high-$k$) \\
+Device model & PTM 22\,nm metal gate / high-$k$ (BSIM4) \\
 Nominal supply & $V_{DD} = 0.9$\,V, sampled $0.81$--$0.99$\,V ($\pm10\,\%$) \\
 Channel length & $L = L_{min} = 22$\,nm \\
 Widths (Part A) & $W = 1$--$8\times L_{min}$ = 22--176\,nm \\
@@ -162,25 +160,25 @@ Process parameters & \texttt{vth0, toxe, ndep, u0, xj}: nominal $\pm10\,\%$, sep
 Test circuit & 3-bit carry-lookahead adder (39 gates, 186 transistors) \\
 Simulator & ngspice-42, DC operating point \\
 SPICE options & \texttt{gmin=1e-18 abstol=1e-18 reltol=1e-6 vntol=1e-9} \\
-ML software & Python 3.10, LightGBM, scikit-learn, SciPy \\
+ML software & Python, LightGBM, scikit-learn, SciPy \\
 \hline
 \end{tabular}
-\caption{Assignment and tools.}
+\caption{Setup.}
 \end{table}
 
-The nominal process values were read from the model card: NMOS \texttt{vth0}\,=\,0.3692\,V,
-\texttt{toxe}\,=\,0.65\,nm, \texttt{ndep}\,=\,$1.2\times10^{19}$, \texttt{u0}\,=\,0.0181,
-\texttt{xj}\,=\,7.2\,nm; PMOS \texttt{vth0}\,=\,$-0.25399$\,V, \texttt{toxe}\,=\,0.67\,nm,
-\texttt{ndep}\,=\,$4.4\times10^{18}$, \texttt{u0}\,=\,0.0023, \texttt{xj}\,=\,7.2\,nm.
+Nominal process values: NMOS \texttt{vth0}\,=\,0.3692\,V, \texttt{toxe}\,=\,0.65\,nm,
+\texttt{ndep}\,=\,$1.2\times10^{19}$, \texttt{u0}\,=\,0.0181, \texttt{xj}\,=\,7.2\,nm; PMOS
+\texttt{vth0}\,=\,$-0.25399$\,V, \texttt{toxe}\,=\,0.67\,nm, \texttt{ndep}\,=\,$4.4\times10^{18}$,
+\texttt{u0}\,=\,0.0023, \texttt{xj}\,=\,7.2\,nm.
 
 % ===========================================================================
 \section{Data Generation}
 % ===========================================================================
 \subsection{Sampling}
-For each of the four cases 10{,}000 samples were drawn with a fixed seed (42). $V_{DD}$ is drawn
-first, then $V_d$ and $V_s$ independently and uniformly in $[0, V_{DD}]$, the width, the temperature
-and the five process parameters, all uniform and independent. The gate and body voltages are fixed
-by the case:
+Samples were drawn uniformly and independently with a fixed seed: $V_{DD}$ first, then $V_d$ and
+$V_s$ in $[0, V_{DD}]$, the width, the temperature and the five process parameters. The gate and
+body voltages are fixed by the case (Table~\ref{tab:bias}). More than 10{,}000 SPICE samples were
+generated per case, over 50{,}000 in total, including the extra samples of Section~III.iii.
 
 \begin{table}[H]
 \centering
@@ -195,33 +193,39 @@ PMOS OFF & $V_{DD}$ & $V_{DD}$ \\
 \hline
 \end{tabular}
 \caption{Gate and body bias per case.}
+\label{tab:bias}
 \end{table}
 
 \subsection{Netlists and simulation}
-Each sample is a single-transistor netlist in which every terminal has its own DC voltage source
-(\texttt{Vd, Vg, Vs, Vb}) and the required \texttt{.options} line is set. To keep run time low, 1{,}000
-samples are simulated per ngspice run: the netlist is loaded once and, for each sample, the process
-parameters are changed with \texttt{altermod}, the width and voltages with \texttt{alter} and the
-temperature with \texttt{option temp}, followed by an \texttt{op} analysis. The terminal currents are
-the currents of the four sources with the sign flipped, so a positive current flows \emph{into} the
-transistor terminal. ngspice also writes back every input it actually simulated; these read-back
-values are what the dataset stores, so the inputs and outputs always belong together
-(read-back mismatch $<10^{-8}$). One example netlist per case
-(\texttt{dataset/<CASE>/example\_<case>.net}) reproduces its dataset row to $<0.001\,\%$.
+Each sample is a single-transistor netlist with its own DC source on every terminal. Samples are
+simulated in batches: process parameters are changed with \texttt{altermod}, width and voltages
+with \texttt{alter}, temperature with \texttt{option temp}, followed by an \texttt{op} analysis.
+The terminal currents are the source currents with the sign flipped, so a positive current flows
+into the terminal. The stored inputs are the values read back from ngspice. Randomly chosen rows
+were re-simulated independently and matched to about $10^{-6}\,\%$.
 
-To validate the dataset, 300 random rows of every case were re-simulated independently; the stored
-currents were reproduced to a median of $\sim10^{-6}\,\%$.
+\subsection{Extra samples at gate operating points}
+Models trained only on the uniform data reached 99.1--99.95\,\% on their test sets but only
+97.3\,\% on the gates. Inside a static gate an ON transistor carries only the leakage of the OFF
+network, so its $|V_{ds}|$ is very small (median \OnVdsMedian\,mV), and the bottom transistor of a
+stack has a terminal exactly on the rail. Only \OnTrainSmallVds\,\% of the uniform ON samples had
+$|V_{ds}|<10$\,mV.
+
+Extra samples were therefore added for every case. One terminal is on or near its source rail and
+$|V_{ds}|$ is drawn log-uniformly from 1\,$\mu$V to 30\,mV (ON) or to $V_{DD}$ (OFF); all other
+inputs follow the same distributions as before. OFF-state $I_g$ and $I_b$ values below
+$10^{-15}$\,A are set by simulator noise and are excluded from training and metrics.
 
 \subsection{Train / validation / test split}
-Each dataset is split randomly 70\,/\,15\,/\,15\,\% (7{,}000 / 1{,}500 / 1{,}500 samples) with the
-fixed seed 42. The same split is used by every model. Physics formulas and ML models are fitted on
-the training set only; early stopping, blend weights and model selection use the validation set;
-the test set is used once, for the final numbers.
+Each dataset is split 70\,/\,15\,/\,15\,\% (train / validation / test) with a fixed seed. The
+training and validation parts of the original and extra data are combined. The original test set
+is unchanged, and the test part of the extra samples forms a separate gate-region test set. Early
+stopping, blend weights and model selection use only the validation set.
 
 \subsection{Data check}
-\textbf{Kirchhoff check.} Table~\ref{tab:kcl} lists $|I_d+I_g+I_s+I_b|$ for every case. All
-40{,}000 rows pass (relative residual $<10^{-6}$ or absolute residual $<10^{-14}$\,A); the worst
-relative residual is \KclWorstRel{} and the worst absolute residual \KclWorstAbs\,A.
+\textbf{Kirchhoff check.} Table~\ref{tab:kcl} lists $|I_d+I_g+I_s+I_b|$ per case. All rows pass
+(relative residual $<10^{-6}$ or absolute residual $<10^{-14}$\,A); the worst relative residual is
+\KclWorstRel{} and the worst absolute residual \KclWorstAbs\,A.
 
 \begin{table}[H]
 \centering
@@ -230,23 +234,17 @@ relative residual is \KclWorstRel{} and the worst absolute residual \KclWorstAbs
 \label{tab:kcl}
 \end{table}
 
-\textbf{Trend plots.} The OFF current is the subthreshold channel current per width, measured at the
-source-side terminal (where gate tunnelling is negligible) at the textbook OFF bias: source-side
-terminal within 0.1\,V of its rail ($V_{gs}\approx0$) and $|V_{ds}|\ge0.6$\,V
-(\OffRowsN{} NMOS and \OffRowsP{} PMOS samples).
+\textbf{Trend plots.} The OFF current is the subthreshold channel current per width at the
+source-side terminal, taken at $V_{gs}\approx0$ and $|V_{ds}|\ge0.6$\,V.
 
 \begin{itemize}
-    \item \textbf{OFF current vs temperature} (Fig.~\ref{fig:trend_temp}): rises by one to two decades
-          from $-40$ to $125\,^\circ$C, as expected from the $\exp(-V_{th}/nV_T)$ dependence and the
-          drop of $V_{th}$ with temperature (Spearman $\rho$ = \RhoTempN{} NMOS, \RhoTempP{} PMOS).
-    \item \textbf{OFF current vs $|$vth0$|$} (Fig.~\ref{fig:trend_vth}): at a fixed temperature band the
-          OFF current falls with $|$vth0$|$ ($\rho$ between \RhoVthMin{} and \RhoVthMax), the
-          subthreshold exponential in $V_{th}$. Temperature dominates the overall spread, so the
-          plot shows one line per temperature band.
+    \item \textbf{OFF current vs temperature} (Fig.~\ref{fig:trend_temp}): rises by one to two
+          decades from $-40$ to $125\,^\circ$C (Spearman $\rho$ = \RhoTempN{} NMOS, \RhoTempP{} PMOS).
+    \item \textbf{OFF current vs $|$vth0$|$} (Fig.~\ref{fig:trend_vth}): falls with $|$vth0$|$ at a
+          fixed temperature ($\rho$ between \RhoVthMin{} and \RhoVthMax).
     \item \textbf{Gate current vs toxe} (Fig.~\ref{fig:trend_tox}): $|I_g|/W$ falls exponentially
-          with oxide thickness in all four cases ($\rho$ between \RhoToxMin{} and \RhoToxMax), the
-          signature of direct tunnelling. ON devices have the larger gate current because the whole
-          channel is inverted.
+          with oxide thickness in all four cases ($\rho$ between \RhoToxMin{} and \RhoToxMax), as
+          expected for direct tunnelling. ON devices have the larger gate current.
 \end{itemize}
 
 \begin{figure}[H]
@@ -274,35 +272,29 @@ terminal within 0.1\,V of its rail ($V_{gs}\approx0$) and $|V_{ds}|\ge0.6$\,V
 \section{Transistor Models}
 % ===========================================================================
 \subsection{Approach: physics baseline + LightGBM correction}
-All four chosen models share one structure. A compact physics model is fitted first (SciPy
-\texttt{least\_squares}, training rows only) and LightGBM learns only the small correction on top:
+All four models use the same structure: a compact physics model fitted by least squares on the
+training data, and a LightGBM model that learns the correction.
 
 \begin{itemize}
     \item \textbf{Physics baseline.} Subthreshold / EKV-style channel current $C$ (body effect, DIBL,
-          temperature, width and process terms, plus a smooth quadratic correction), gate tunnelling
-          at the drain and source edges $F_d, F_s$, and a body-current model (junction, high-temperature
-          and gate-to-body terms). The physics guess is $I_d=\mathrm{sgn}(V_d-V_s)\,C+F_d$,
-          $I_s=-\mathrm{sgn}(V_d-V_s)\,C+F_s$, $I_g=-(F_d+F_s)$.
-    \item \textbf{Targets (preprocessing).} For $I_d$ and $I_s$ the model learns
-          $I/(C+F_\text{this})$ minus its physics value. This ratio is smooth through $I=0$ and carries
-          the sign, which removes the large relative errors a $\log|I|$ target produces where the
-          current changes sign. For $I_g$ and $I_b$ the target is $\ln|I| - \ln|I_\text{phys}|$.
-    \item \textbf{One model for all four currents.} The four currents of a sample are stacked as four
-          rows with a categorical ``current'' feature; $I_d$ and $I_s$ rows are written from the
-          view of ``this terminal'' and ``the other terminal'', so one function learns both.
+          temperature, width and process terms), gate tunnelling at the drain and source edges
+          $F_d, F_s$, and a body-current model. The physics estimate is
+          $I_d=\mathrm{sgn}(V_d-V_s)\,C+F_d$, $I_s=-\mathrm{sgn}(V_d-V_s)\,C+F_s$, $I_g=-(F_d+F_s)$.
+    \item \textbf{Targets.} For $I_d$ and $I_s$ the target is $I/(C+F)$ relative to its physics
+          value, which stays smooth where the current changes sign. For $I_g$ and $I_b$ the target
+          is $\ln|I| - \ln|I_\text{phys}|$.
+    \item \textbf{One model for all four currents.} The four currents of a sample are stacked as
+          rows with a categorical ``current'' feature.
     \item \textbf{Features.} The raw inputs plus $\log W$, $V_{high}$, $V_{low}$, $|V_{ds}|$,
-          $1/V_T$, $V_{th}/V_T$, $|V_{ds}|/V_T$ and the physics quantities ($\log C$, $\log F$, share
-          of the physics current).
-    \item \textbf{Mirroring.} NMOS ON is the mirror image of PMOS ON and PMOS OFF the mirror image of
-          NMOS OFF: with $V' = V_{DD}-V$, all currents negated and $|$vth0$|$, the device equations
-          take the same form. NMOS ON therefore reuses the PMOS ON pipeline and PMOS OFF reuses the
-          NMOS OFF pipeline; relative errors are identical in both views.
+          $\log_{10}|V_{ds}|$, $1/V_T$, $V_{th}/V_T$, $|V_{ds}|/V_T$ and the physics quantities.
+    \item \textbf{Mirroring.} NMOS ON is the mirror image of PMOS ON, and PMOS OFF of NMOS OFF
+          ($V' = V_{DD}-V$, currents negated), so each pair uses the same pipeline.
 \end{itemize}
 
 \textbf{LightGBM hyperparameters} (all cases): Huber loss ($\alpha=0.005$), learning rate 0.08,
 31 leaves, at least 20 samples per leaf, linear trees ($\lambda_\text{lin}=0.1$), 80\,\% row and
 90\,\% feature subsampling, $L_2=0.01$, up to 45{,}000 trees (20{,}000 for the OFF cases) with early
-stopping after 300 rounds without validation improvement, and 3 seeds (42, 7, 123) averaged.
+stopping after 300 rounds, and 3 seeds averaged.
 
 \begin{table}[H]
 \centering
@@ -316,16 +308,17 @@ NMOS ON & 4 physics versions (A: best channel fit; B: + gate-to-body tunnelling;
 NMOS OFF & 1 physics version $\times$ 3 seeds. \\
 PMOS ON & 2 physics versions (A, B: + gate-to-body tunnelling) $\times$ 3 seeds; average of A and B,
           $I_s$ from A. \\
-PMOS OFF & NMOS OFF pipeline on mirrored data, PMOS nominal values, $\times$ 3 seeds. \\
+PMOS OFF & NMOS OFF pipeline on mirrored data with PMOS nominal values, $\times$ 3 seeds. \\
 \hline
 \end{tabular}
 \caption{Chosen model per case.}
 \end{table}
 
 \subsection{Model development and selection}
-Table~\ref{tab:ablation} compares, on the validation set, the fitted physics formulas alone with the
-final physics + LightGBM models. The ML correction reduces the median error by one to two orders of
-magnitude.
+The physics formulas are fitted on the original training samples only; LightGBM uses all training
+samples. For NMOS ON the blend weights of versions A--D are chosen per current by a grid search on
+the validation set. Table~\ref{tab:ablation} compares the physics formulas alone with the final
+models: the ML correction lowers the median error by one to two orders of magnitude.
 
 \begin{table}[H]
 \centering
@@ -334,13 +327,9 @@ magnitude.
 \label{tab:ablation}
 \end{table}
 
-For PMOS OFF two model families were trained on the same split: an ensemble of tanh MLPs
-(L-BFGS, 2--4 hidden layers) that predicts $\log I_g$, $\log I_b$ and the antisymmetric part
-$c=(I_d-I_s)/2$, and the physics + LightGBM model. The MLP rebuilds $I_d=-(I_g+I_b)/2+c$, which
-assumes an equal split of the gate current between drain and source; near the zero crossing of
-$I_d$ this becomes a difference of two nearly equal terms and the relative error explodes. The
-physics + LightGBM model is better on every current on the validation set (Table~\ref{tab:pmosoff})
-and was selected.
+For PMOS OFF an MLP ensemble was also trained on the same split. It rebuilds $I_d$ from $I_g$,
+$I_b$ and an antisymmetric term, which fails near the zero crossing of $I_d$, and it was less
+accurate on every current (Table~\ref{tab:pmosoff}). The physics + LightGBM model was selected.
 
 \begin{table}[H]
 \centering
@@ -350,14 +339,27 @@ and was selected.
 \end{table}
 
 \subsection{Test-set results of the chosen models}
-Table~\ref{tab:models} gives the test-set median and 95th-percentile error of each chosen model.
-The lowest mean accuracy is \ModelMinAcc\,\% (\ModelMinAccWhere); every current of every case is above
-99\,\%. Figures~\ref{fig:par_non}--\ref{fig:par_poff} show predicted vs SPICE currents.
+Table~\ref{tab:models} gives the test-set results. All currents exceed 99\,\% mean accuracy except
+\ModelMinAccWhere{} (\ModelMinAcc\,\%). Figures~\ref{fig:par_non}--\ref{fig:par_poff} show
+predicted vs SPICE currents.
+
+Table~\ref{tab:aug} shows the effect of the extra samples. On the gate-region test set the ON
+models improved from \AugOnBeforeMin--\AugOnBeforeMax\,\% to \AugOnAfterMin--\AugOnAfterMax\,\%
+for $I_d$/$I_s$, and every current now reaches at least \AugAfterMin\,\%. On the original test set
+only NMOS ON $I_d$ and $I_s$ dropped, by about 0.4--0.5 points.
+
+\begin{table}[H]
+\centering
+\gentable{tab_augmentation}
+\caption{Mean accuracy (\%) before and after adding the gate-region samples, on the gate-region
+test set and on the original test set.}
+\label{tab:aug}
+\end{table}
 
 \begin{table}[H]
 \centering
 \gentable{tab_models_test}
-\caption{Chosen models, test set (1{,}500 samples per case).}
+\caption{Chosen models, test set.}
 \label{tab:models}
 \end{table}
 
@@ -392,41 +394,30 @@ The lowest mean accuracy is \ModelMinAcc\,\% (\ModelMinAccWhere); every current 
 % ===========================================================================
 \subsection{Method}
 \begin{itemize}
-    \item \textbf{Corners.} 200 random corners (seed 2026); a corner is one draw of $V_{DD}$,
-          temperature, the NMOS process parameters and, separately, the PMOS process parameters
-          (distributions of Section~III). All NMOS of a gate share one draw, all PMOS another.
-    \item \textbf{Gates.} Static CMOS INV, NAND2 (internal node $x$ between the series NMOS), NOR2
-          (internal node $y$ between the series PMOS), AND2 = NAND2 + INV and OR2 = NOR2 + INV,
-          simulated as complete gates. Inputs at exactly 0 or $V_{DD}$; 18 cases $\times$ 200 corners =
-          3{,}600 SPICE simulations, used for evaluation only.
-    \item \textbf{Leakage.} Current delivered by the $V_{DD}$ source plus every input source held at
-          logic 1 (static power$/V_{DD}$): $I_{leak} = -i(V_{DD}) - \sum_{in=1} i(V_{in})$.
-    \item \textbf{ML prediction.} For each transistor, $V_d$ and $V_s$ come from the recorded SPICE
-          node voltages (output and internal nodes), $V_g$ is the logic level of its gate node (which
-          also selects ON/OFF), $V_b$ is 0 (NMOS) or $V_{DD}$ (PMOS). The four models give its four
-          currents; the gate leakage is the sum of the predicted currents at the terminals on
-          $V_{DD}$-level nodes. Re-simulating every transistor alone at the same voltages reproduces
-          the gate's SPICE leakage exactly, so any remaining error is model error.
-    \item \textbf{Rail clamp.} Inside a gate the source of an OFF transistor is exactly on a rail
-          (0 for NMOS, $V_{DD}$ for PMOS), a point the training data never contains (closest
-          7--31\,$\mu$V) and where the OFF-state physics term $\ln V$ is undefined. Such a terminal is
-          moved 30\,$\mu$V off the rail. The value was chosen on 400 \emph{new} single-transistor SPICE
-          samples per OFF case with the source exactly on the rail (not on the gate results): there the
-          OFF models reach 99.34\,\% (NMOS) and 99.41\,\% (PMOS) mean accuracy for $I_d$, the current that
-          carries the OFF transistor's share of the gate leakage.
+    \item \textbf{Corners.} 200 random corners, each a draw of $V_{DD}$, temperature and the NMOS
+          and PMOS process parameters. All NMOS of a gate share one draw, all PMOS another.
+    \item \textbf{Gates.} Static CMOS INV, NAND2, NOR2, AND2 (NAND2 + INV) and OR2 (NOR2 + INV),
+          simulated as complete gates with inputs at 0 or $V_{DD}$: 18 input cases $\times$ 200
+          corners = 3{,}600 SPICE simulations, used for evaluation only.
+    \item \textbf{Leakage.} Current drawn from the $V_{DD}$ source and every input held at logic 1:
+          $I_{leak} = -i(V_{DD}) - \sum_{in=1} i(V_{in})$.
+    \item \textbf{ML prediction.} For each transistor, $V_d$ and $V_s$ come from the SPICE node
+          voltages, $V_g$ is the logic level of its gate (which selects ON/OFF), and $V_b$ is 0
+          (NMOS) or $V_{DD}$ (PMOS). The gate leakage is the sum of the predicted currents at the
+          terminals on $V_{DD}$-level nodes.
+    \item \textbf{Rail clamp.} The OFF-state physics term $\ln V$ is undefined for a terminal exactly
+          on the rail. If a terminal is within 30\,$\mu$V of the rail, both terminals are shifted so
+          that the lower one sits 30\,$\mu$V off the rail, keeping $V_{ds}$ unchanged. The same rule
+          is used in training.
 \end{itemize}
 
 \subsection{Results}
-Over all \textbf{3{,}600} gate simulations the ML leakage has a mean accuracy of
-\textbf{\GateMeanAcc\,\%}, median error \GateMedErr\,\%, 95th-percentile error \GatePninetyfive\,\% and
-bias \GateBias\,\% (Table~\ref{tab:gate}); \GateNinetyNineCount{} of the 18 cases reach 99\,\% mean
-accuracy. The most accurate case is \GateBest; the least accurate is \GateWorst{}
-(mean accuracy \GateWorstAcc\,\%, p95 \GateWorstPninetyfive\,\%). By gate type, \GateBestGate{} is the
-most and \GateWorstGate{} the least accurate (Table~\ref{tab:gatebygate}).
-
-The gate-level accuracy is therefore below the 99\,\% that every transistor model reaches on its own
-test set. Section~VII shows why: inside a gate the ON transistors work at an almost zero $V_{ds}$,
-a corner of the input space the ON-state training data covers only sparsely.
+Over all gate simulations the ML leakage has a mean accuracy of \textbf{\GateMeanAcc\,\%}, median
+error \GateMedErr\,\%, 95th-percentile error \GatePninetyfive\,\% and bias \GateBias\,\%
+(Table~\ref{tab:gate}); \GateNinetyNineCount{} of the 18 cases reach 99\,\% mean accuracy. The most
+accurate case is \GateBest; the least accurate is \GateWorst{} (mean accuracy \GateWorstAcc\,\%,
+p95 \GateWorstPninetyfive\,\%). By gate type, \GateBestGate{} is the most and \GateWorstGate{} the
+least accurate (Table~\ref{tab:gatebygate}).
 
 \begin{table}[H]
 \centering
@@ -446,7 +437,7 @@ Bias = median of (ML$-$SPICE)/SPICE.}
 \begin{figure}[H]
 \centering
 \includeimage[0.72\linewidth]{figures/gate_parity.png}{Gate parity plot}
-\caption{ML vs SPICE leakage for all 3{,}600 gate simulations (log axes).}
+\caption{ML vs SPICE leakage for all gate simulations (log axes).}
 \label{fig:gate_parity}
 \end{figure}
 
@@ -467,47 +458,39 @@ Bias = median of (ML$-$SPICE)/SPICE.}
 % ===========================================================================
 \subsection{Circuit and method}
 The adder has 7 inputs ($A_{2..0}$, $B_{2..0}$, $C_{in}$). It computes $P_i=A_i\oplus B_i$,
-$G_i=A_iB_i$, the lookahead carries $C_1$--$C_3$ with AND2/OR2 gates and $S_i=P_i\oplus C_i$; each XOR
-is built from four NAND2. In total 24 NAND2, 9 AND2 and 6 OR2 (39 gates, 186 transistors). The
-complete netlist was simulated in SPICE for all 128 input vectors at the same 200 corners (25{,}600
-simulations); the adder was checked to add correctly for every vector.
+$G_i=A_iB_i$, the carries $C_1$--$C_3$ with AND2/OR2 gates and $S_i=P_i\oplus C_i$, with each XOR
+built from four NAND2: 24 NAND2, 9 AND2 and 6 OR2 (39 gates, 186 transistors). The full netlist was
+simulated for all 128 input vectors at the same 200 corners.
 
-For the ML prediction the logic value at the inputs of every gate is computed for each vector, the
-corresponding gate model (Part B, which calls the transistor models) gives that gate's leakage, and
-the gate leakages are summed. This assumes every gate input sits at exactly 0 or $V_{DD}$ and
-ignores loading between gates.
+For the ML prediction, the logic level at every gate input is computed for each vector, each
+gate's leakage is predicted from the transistor models, and the gate leakages are summed. This
+assumes rail-to-rail gate inputs and no loading between gates.
 
 \subsection{Results}
-Over all 25{,}600 simulations the hierarchical ML leakage has a mean accuracy of
-\textbf{\ClaMeanAcc\,\%}, median error \ClaMedErr\,\%, p95 error \ClaPninetyfive\,\% and bias
-\ClaBias\,\% (Table~\ref{tab:cla}, Fig.~\ref{fig:cla_parity}).
+Over all vectors and corners the ML leakage has a mean accuracy of \textbf{\ClaMeanAcc\,\%}, median
+error \ClaMedErr\,\%, p95 error \ClaPninetyfive\,\% and bias \ClaBias\,\% (Table~\ref{tab:cla},
+Fig.~\ref{fig:cla_parity}).
 
 \begin{table}[H]
 \centering
 \gentable{tab_cla}
-\caption{3-bit CLA: SPICE vs hierarchical ML leakage, grouped by the number of inputs at logic 1.}
+\caption{3-bit CLA: SPICE vs ML leakage, grouped by the number of inputs at logic 1.}
 \label{tab:cla}
 \end{table}
 
 \begin{figure}[H]
 \centering
 \includeimage[0.72\linewidth]{figures/cla_parity.png}{CLA parity plot}
-\caption{3-bit CLA: hierarchical ML vs full-netlist SPICE leakage (log axes).}
+\caption{3-bit CLA: ML vs full-netlist SPICE leakage (log axes).}
 \label{fig:cla_parity}
 \end{figure}
 
 \subsection{Comparison with the gate level}
-The circuit error has two sources, separated in Table~\ref{tab:decomp}: the \emph{composition error}
-of summing ideal gate leakages (exact SPICE gate leakages vs the full netlist; median
-\ClaCompMedErr\,\%, mean accuracy \ClaCompMeanAcc\,\%) and the \emph{model error} of the ML gate
-predictions (median \ClaModelMedErr\,\%). The composition error comes from the assumptions above:
-internal gate inputs are not exactly at the rails and neighbouring gates load each other; on its own
-it would limit the circuit to \ClaCompMeanAcc\,\% mean accuracy. Here, however, the model error
-dominates. The circuit (\ClaMeanAcc\,\%) ends up slightly \emph{more} accurate than the isolated
-gates (\GateMeanAcc\,\%): its leakage is the sum of 39 gate leakages, so the gate errors partly
-average out, and its p95 error (\ClaPninetyfive\,\%) is lower than the gate p95
-(\GatePninetyfive\,\%). The common bias of about $-1$\,\% does not average out and sets the median
-error of both.
+The circuit error has two parts (Table~\ref{tab:decomp}): the \emph{composition error} of summing
+gate leakages, caused by non-ideal gate inputs and loading (median \ClaCompMedErr\,\%), and the
+\emph{model error} of the ML gate predictions (median \ClaModelMedErr\,\%). They are of similar
+size, so the circuit (\ClaMeanAcc\,\%) is slightly less accurate than the isolated gates
+(\GateMeanAcc\,\%).
 
 \begin{table}[H]
 \centering
@@ -528,47 +511,33 @@ error of both.
 \subsection{Transistor level}
 \begin{itemize}
     \item \textbf{Zero crossing of $I_d$ / $I_s$.} The largest relative errors occur where the drain
-          or source current changes sign: in the OFF state the subthreshold channel current and the
-          gate-edge tunnelling current flow in opposite directions at one terminal, so the terminal
-          current can be orders of magnitude smaller than either part. Any small absolute error is a
-          large relative error there. This dominates the maximum errors of NMOS OFF and PMOS OFF and
-          is why the ratio target $I/(C+F)$ was used.
-    \item \textbf{Body current in the OFF state.} $I_b$ sits close to $10^{-14}$\,A (junction floor) in
-          most OFF samples, and its relative variation is small, so its linear $R^2$ is low even
-          though its mean accuracy is above 99\,\%. It is negligible for gate leakage.
-    \item \textbf{ON-state gate and body currents.} NMOS ON and PMOS ON have the highest
-          95th-percentile errors (1.4--3.5\,\%) in $I_g$ and $I_b$, where gate-to-channel and
-          gate-to-body tunnelling change with the inversion charge along the channel.
+          or source current changes sign. In the OFF state the channel current and the gate-edge
+          tunnelling current flow in opposite directions at one terminal, so the terminal current
+          can be much smaller than either part. This sets the maximum errors of the OFF models.
+    \item \textbf{Body current in the OFF state.} $I_b$ stays near the $10^{-14}$\,A junction floor,
+          so its $R^2$ is low although its mean accuracy is above 99\,\%. It does not affect gate
+          leakage.
+    \item \textbf{ON-state currents.} The ON models have the highest 95th-percentile errors
+          (1.3--3.2\,\%), mainly from gate tunnelling that varies along the inverted channel.
 \end{itemize}
 
 \subsection{Gate and circuit level}
-\textbf{The ON transistors cause most of the gate error.} Table~\ref{tab:tingate} compares every
-transistor's predicted terminal currents inside the gates with a SPICE simulation of that transistor
-alone at the same voltages. The ON transistors account for \OnShare\,\% of the absolute gate-leakage
-error (PMOS ON \PmosOnShare\,\%, NMOS ON \NmosOnShare\,\%), although their models reach 99.1--99.6\,\%
-on their own test sets.
-
-The reason is a mismatch of operating points. In a static gate an ON transistor connects the output
-(or an internal node) to a rail and carries only the leakage of the OFF network, so its $|V_{ds}|$
-is tiny: median \OnVdsMedian\,mV, 90\,\% below \OnVdsNinety\,mV. The ON-state datasets draw $V_d$ and
-$V_s$ uniformly in $[0, V_{DD}]$, so only \OnTrainSmallVds\,\% of their samples have $|V_{ds}|<10$\,mV
-and almost none are in the sub-millivolt range. There the channel current is nearly zero and the
-terminal currents are dominated by gate tunnelling, which the models have rarely seen. The OFF
-transistors, whose drain-source voltage in a gate is large and well covered by training, predict
-their $I_d$ to a median of 0.8--0.9\,\%.
+Table~\ref{tab:tingate} compares each transistor's predicted currents inside the gates with SPICE of
+that transistor alone at the same voltages. The ON transistors have median errors of 0.2--0.7\,\%.
+Most of the gate-leakage error comes from PMOS OFF (\PmosOffShare\,\%) and PMOS ON
+(\PmosOnShare\,\%) transistors, with NMOS ON at \NmosOnShare\,\%.
 
 \begin{table}[H]
 \centering
 \gentable{tab_transistor_in_gate}
-\caption{Transistor currents inside the gates, ML vs single-transistor SPICE at the same voltages
-(median / p95 error in \%), and each case's share of the absolute gate-leakage error.}
+\caption{Transistor currents inside the gates, ML vs single-transistor SPICE (median / p95 error
+in \%), and each case's share of the gate-leakage error.}
 \label{tab:tingate}
 \end{table}
 
-The worst gate case is \GateWorst{}: both NMOS are OFF in series and both PMOS are ON in parallel
-with almost zero $V_{ds}$, so two ON-state errors add up. Temperature has little influence: the median
-gate error is \GateErrHot\,\% for $T \ge 85\,^\circ$C and \GateErrCold\,\% for $T\le0\,^\circ$C (CLA:
-\ClaErrHot\,\% and \ClaErrCold\,\%).
+The least accurate gate case is \GateWorst{}, with a bias of \GateWorstBias\,\%. Temperature has
+little effect: the median gate error is \GateErrHot\,\% for $T \ge 85\,^\circ$C and
+\GateErrCold\,\% for $T\le0\,^\circ$C (CLA: \ClaErrHot\,\% and \ClaErrCold\,\%).
 
 \begin{figure}[H]
 \centering
@@ -592,49 +561,18 @@ gate error is \GateErrHot\,\% for $T \ge 85\,^\circ$C and \GateErrCold\,\% for $
 \section{Limitations and Improvements}
 % ===========================================================================
 \begin{itemize}
-    \item \textbf{Training distribution vs gate operating points (main limitation).} The ON models
-          are trained on uniformly drawn $V_d$, $V_s$, but in gates they operate at
-          $|V_{ds}|\approx0$ (median \OnVdsMedian\,mV). The most effective improvement is to add
-          ON-state training samples with $|V_{ds}|$ from $10^{-6}$ to $10^{-2}$\,V (for example
-          log-uniform), and OFF-state samples with a terminal exactly on the rail, and retrain. The
-          project document allows the dataset size to be increased for this purpose.
-    \item \textbf{Training data size.} Each model sees 7{,}000 samples. The 95th-percentile errors of
-          the ON-state models (1.4--3.5\,\%) would also fall with more samples.
-    \item \textbf{Zero crossings.} Relative error is ill-defined where a terminal current passes
-          through zero. Sampling more points near $V_d\approx V_s$ and near the drain-current zero
-          crossing of the OFF state, or reporting a floor-normalised error, would address this.
-    \item \textbf{Composition assumptions.} The circuit model assumes rail-to-rail gate inputs and no
-          loading. Passing the predicted (not ideal) output voltage of each gate to the next, or
-          adding the internal-node voltages from a fast DC solve, should reduce the
-          composition error.
-    \item \textbf{Run time.} Each physics fit takes a few minutes and each LightGBM model
-          4--9 minutes on one core. Predicting all 16{,}800 gate transistors takes about five minutes
-          on 12 threads, most of it for the 12 large NMOS ON models.
+    \item \textbf{Operating-point coverage.} Uniform $V_d$, $V_s$ sampling misses the operating
+          points inside gates. Adding targeted samples raised the gate accuracy from 97.3\,\% to
+          \GateMeanAcc\,\%, at a small cost for NMOS ON $I_d$/$I_s$ (\ModelMinAcc\,\%). More trees or
+          more samples should recover it.
+    \item \textbf{Training data size.} Each model has about 10{,}000 training samples; more data
+          should lower the 95th-percentile errors of the ON models.
+    \item \textbf{Zero crossings.} Relative error is ill-defined where a current crosses zero. Denser
+          sampling near $V_d\approx V_s$ or a floor-normalised error would help.
+    \item \textbf{Composition assumptions.} Passing each gate's predicted output voltage to the next
+          gate would reduce the composition error.
+    \item \textbf{Run time.} Training all four models takes about 70 minutes on 11 cores; predicting
+          all gate transistors takes about five minutes.
 \end{itemize}
-
-% ===========================================================================
-\section{Reproducibility}
-% ===========================================================================
-Every result is regenerated from the model file by scripts with fixed seeds. \texttt{run\_all.sh}
-runs the stages in order:
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lp{10.5cm}}
-\hline
-Stage & Scripts \\
-\hline
-data & \texttt{dataset/<CASE>/01\_*\_inputs.py}, \texttt{02\_*\_simulate.py} (seed 42) \\
-datacheck & \texttt{dataset/03\_data\_check.py}, \texttt{04\_example\_netlists.py} \\
-train & \texttt{ml\_model/train\_parallel.py} (NMOS ON, PMOS ON), \texttt{train\_final.py} (NMOS OFF, PMOS OFF) \\
-check & \texttt{ml\_model/summarize\_models.py}, \texttt{gate\_circuit/00\_check\_models.py} \\
-spice & \texttt{gate\_circuit/01}--\texttt{04} (corners seed 2026, gate and CLA SPICE) \\
-gates & \texttt{gate\_circuit/05}--\texttt{08} (ML gate and CLA leakage, tables, plots) \\
-collect & \texttt{collect\_deliverables.py} \\
-report & \texttt{report/make\_report\_assets.py} \\
-\hline
-\end{tabular}
-\caption{Pipeline stages.}
-\end{table}
 
 \end{document}

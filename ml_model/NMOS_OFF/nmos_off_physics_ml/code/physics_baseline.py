@@ -96,13 +96,16 @@ def _res_dsg(g, p, q, c, Q, d):
     Fd = np.exp(ln_gate(g, c['vd'], c)); Fs = np.exp(ln_gate(g, c['vs'], c))
     C = np.exp(ln_chan_core(p, c) + (Q @ q if q is not None else 0)); sg = np.sign(c['vd'] - c['vs'])
     sc = C + np.maximum(Fd, Fs)
-    return np.r_[(sg * C + Fd - d.id.values) / sc, (-sg * C + Fs - d['is'].values) / sc, np.log((Fd + Fs) / -d.ig.values)]
+    ok = np.isfinite(d.ig.values)                 # Ig below the simulator noise floor is NaN: skip it
+    return np.r_[(sg * C + Fd - d.id.values) / sc, (-sg * C + Fs - d['is'].values) / sc,
+                 np.log((Fd + Fs)[ok] / -d.ig.values[ok])]
 
 def fit_physics(tr, verbose=True):
     c = norm_inputs(tr); n = len(tr); Q = chan_quad(c)
     # Stage 1: gate tunnelling, fitted on Ig only (Ig depends only on the gate terms)
     g0 = np.zeros(NG); g0[0] = -18; g0[1] = 2; g0[13] = 1; g0[5] = -2
-    rg = lambda g: np.log((np.exp(ln_gate(g, c['vd'], c)) + np.exp(ln_gate(g, c['vs'], c))) / -tr.ig.values)
+    okg = np.isfinite(tr.ig.values)               # skip noise-floor (NaN) Ig values
+    rg = lambda g: np.log((np.exp(ln_gate(g, c['vd'], c)) + np.exp(ln_gate(g, c['vs'], c)))[okg] / -tr.ig.values[okg])
     g = least_squares(rg, g0, max_nfev=20000, x_scale='jac').x
     if verbose: print('  gate formula fitted', flush=True)
     # Stage 2: channel, starting level chosen by a quick scan, then fitted on Id and Is
@@ -124,7 +127,8 @@ def fit_physics(tr, verbose=True):
     p, q = x[:NC], x[NC:]
     if verbose: print('  channel quadratic correction fitted', flush=True)
     # Stage 5: body current (robust soft_l1 loss, a few deterministic restarts)
-    rb = lambda pp: np.log(ib_model(pp, tr) / -tr.ib.values)
+    okb = np.isfinite(tr.ib.values)               # skip noise-floor (NaN) Ib values
+    rb = lambda pp: np.log(ib_model(pp, tr)[okb] / -tr.ib.values[okb])
     pb0 = np.array([np.log(5e-15), 0, 0, 1, 0, np.log(1e-15), 1, 1.1, 1, np.log(1e-17), 1, 0, 5, 0])
     bestb = None
     for s in range(6):
