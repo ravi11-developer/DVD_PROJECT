@@ -1,0 +1,15 @@
+plot,case,rows,spearman
+OFF current vs temperature,NMOS OFF,614,0.8167969205131632
+OFF current vs temperature,PMOS OFF,635,0.7215028445532159
+OFF current vs |vth0| (-40 to 15 C),NMOS OFF,200,-0.37053940243736294
+OFF current vs |vth0| (15 to 70 C),NMOS OFF,187,-0.5419861336935099
+OFF current vs |vth0| (70 to 125 C),NMOS OFF,227,-0.4199395119509038
+OFF current vs |vth0| (all temperatures),NMOS OFF,614,-0.3212589845638012
+OFF current vs |vth0| (-40 to 15 C),PMOS OFF,191,-0.3258611187655001
+OFF current vs |vth0| (15 to 70 C),PMOS OFF,234,-0.3277354368761547
+OFF current vs |vth0| (70 to 125 C),PMOS OFF,210,-0.43243287019789883
+OFF current vs |vth0| (all temperatures),PMOS OFF,635,-0.24003464360717183
+gate current vs toxe,NMOS ON,10000,-0.43217935213379355
+gate current vs toxe,NMOS OFF,10000,-0.5961163533109519
+gate current vs toxe,PMOS ON,10000,-0.4688918609249187
+gate current vs toxe,PMOS OFF,10000,-0.5948372652443727

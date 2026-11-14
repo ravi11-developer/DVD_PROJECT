@@ -1,26 +1,23 @@
-# ==============================================================================
-# Requirements for ML-Driven PVT Variation Aware Leakage Estimation Project
-# ==============================================================================
+# Requirements for ML-Driven PVT Variation Aware Leakage Estimation (the only requirements file)
+# Install:  python -m pip install -r requirements.txt   (Python 3.10)
+# Also needs ngspice on PATH (tested with ngspice-42) for the SPICE stages.
+#
+# Versions are pinned to the environment the saved models were trained in: LightGBM / scikit-learn
+# model files (.joblib) may not load, or may predict differently, under other versions.
 
-# Core Numerical & Data Processing
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
+# Numerical and data processing
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
 
-# Machine Learning & Gradient Boosted Tree Frameworks
-scikit-learn>=1.3.0
-lightgbm>=4.0.0
-xgboost>=2.0.0
-joblib>=1.3.0
+# Machine learning
+scikit-learn==1.7.2
+lightgbm==4.7.0
+joblib==1.6.0
 
-# Hyperparameter Optimization (Used by Optuna tuning scripts)
-optuna>=3.0.0
+# Plots
+matplotlib==3.10.9
 
-# Visualization & Diagnostics (Parity plots, error CDFs, learning curves)
-matplotlib>=3.7.0
-seaborn>=0.12.0
-
-# Interactive Notebook & Execution Environment
-ipykernel>=6.0.0
-nbconvert>=7.0.0
-jupyterlab>=4.0.0
+# Only for ml_model/PMOS_OFF/mlp.ipynb (the MLP kept as the PMOS OFF comparison)
+ipykernel==7.3.0
+nbconvert==7.17.2

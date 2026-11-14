@@ -1,0 +1,9 @@
+model,current,val_mean_accuracy_pct,chosen
+MLP ensemble (mlp.ipynb),ID,98.984,no
+MLP ensemble (mlp.ipynb),IG,99.666,no
+MLP ensemble (mlp.ipynb),IS,99.014,no
+MLP ensemble (mlp.ipynb),IB,99.604,no
+physics + LightGBM (pmos_off_physics_ml),ID,99.7948,yes
+physics + LightGBM (pmos_off_physics_ml),IG,99.9441,yes
+physics + LightGBM (pmos_off_physics_ml),IS,99.7877,yes
+physics + LightGBM (pmos_off_physics_ml),IB,99.6842,yes

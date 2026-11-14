@@ -23,7 +23,7 @@ L = 22e-9
 WN = 2 * L          # every NMOS in every gate
 WP = 4 * L          # every PMOS in every gate
 
-# Nominal values from model/22nm_MGK.pm (same as dataset/*_inputs.py)
+# Nominal values from model/22nm_MGK.pm (same as dataset/<CASE>/01_<case>_inputs.py)
 NMOS_NOM = dict(vth0=0.3692, toxe=6.5e-10, ndep=1.2e19, u0=0.0181, xj=7.2e-9)
 PMOS_NOM = dict(vth0=-0.25399, toxe=6.7e-10, ndep=4.4e18, u0=0.0023, xj=7.2e-9)
 PROC_PARAMS = ["vth0", "toxe", "ndep", "u0", "xj"]

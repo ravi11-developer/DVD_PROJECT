@@ -1,0 +1,18 @@
+Transistor terminal currents inside the gates: ML vs single-transistor SPICE
+    case terminal    n median_abs_A median_err_pct p95_err_pct share_of_gate_leak_abs_err_pct
+nmos_off       id 4200   1.2445e-08          0.843       7.801                          0.000
+nmos_off       ig 4200   3.1086e-09          0.530      12.105                          0.000
+nmos_off       is 4200   6.3171e-09          1.454      12.676                          0.000
+nmos_off       ib 4200   1.0099e-14          1.364     125.350                          0.000
+ nmos_on       id 4200   6.5529e-08          3.271     104.570                          9.140
+ nmos_on       ig 4200   1.5641e-08          2.435      13.464                          9.140
+ nmos_on       is 4200   8.9163e-08          7.242      36.440                          9.140
+ nmos_on       ib 4200   1.5853e-10          2.663       7.525                          9.140
+pmos_off       id 4200   3.4422e-08          0.907       7.458                         16.154
+pmos_off       ig 4200   5.6733e-09          0.557      31.856                         16.154
+pmos_off       is 4200   2.3188e-08          1.077       7.235                         16.154
+pmos_off       ib 4200   1.0349e-14          1.866     162.766                         16.154
+ pmos_on       id 4200   4.0634e-08          3.712     128.618                         74.706
+ pmos_on       ig 4200   4.8010e-08          1.974      44.595                         74.706
+ pmos_on       is 4200   9.8756e-08          2.919       9.077                         74.706
+ pmos_on       ib 4200   1.6579e-09          1.238       4.559                         74.706

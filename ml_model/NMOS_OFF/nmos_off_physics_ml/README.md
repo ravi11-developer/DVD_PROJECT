@@ -7,12 +7,13 @@ No current is ever computed by adding or subtracting other measured currents.
 ## How to run
 
 ```
-pip install -r requirements.txt
+pip install -r ../../../requirements.txt     (the project-wide file in the project root)
 cd code
-set NMOS_OFF_CSV=C:\path\to\nmos_off.csv        (Windows)
-export NMOS_OFF_CSV=/path/to/nmos_off.csv       (Linux / Mac)
 python train_final.py
 ```
+
+The data is read from `dataset/NMOS_OFF/nmos_off.csv` in the project root.
+To use a different file, set `NMOS_OFF_CSV` to its path first.
 
 It takes about 10 minutes on one CPU core. Everything goes into `results/`.
 To get exactly the numbers below, keep `N_JOBS = 1` in `train_final.py`.

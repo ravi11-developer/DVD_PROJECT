@@ -8,7 +8,9 @@ Relative errors are identical in both views (|(-p) - (-t)| / |-t| = |p - t| / |t
 import os, numpy as np, pandas as pd
 from sklearn.model_selection import train_test_split
 K_Q = 8.617333e-5; CURRENTS = ['id', 'ig', 'is', 'ib']
-DATA_CSV = os.environ.get('NMOS_ON_CSV', 'nmos_on.csv')
+_DEFAULT_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             '..', '..', '..', '..', 'dataset', 'NMOS_ON', 'nmos_on.csv'))
+DATA_CSV = os.environ.get('NMOS_ON_CSV', _DEFAULT_DATA)   # override with NMOS_ON_CSV if needed
 def mirror(df):
     """NMOS ON -> PMOS-ON-like view. Applying it twice gives back the original."""
     m = df.copy()
