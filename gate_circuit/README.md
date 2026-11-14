@@ -68,3 +68,23 @@ with the real models before reporting anything.
   - bias = median of (ML−SPICE)/SPICE
   - median error and p95 error are taken over |(ML−SPICE)/SPICE|
   - mean accuracy = 100 − mean(min(|err|, 100))
+
+## Rail clamp (OFF models)
+
+Inside a gate the source of an OFF transistor sits exactly on a rail (NMOS: 0 V, PMOS: VDD). The OFF
+models' physics term uses ln(V) of the drain/source voltage, and the training data never contains
+V = 0 exactly (closest 7–31 µV), so `leakage_models.py` moves such a terminal `RAIL_EPS = 30 µV` off
+the rail. The value was chosen on 400 *fresh* single-transistor SPICE samples per OFF case with the
+source exactly on the rail (not on the gate results, which are evaluation-only):
+
+| ε | NMOS OFF Id acc. | PMOS OFF Id acc. |
+|---|---|---|
+| 1 µV | 99.27 % | 99.34 % |
+| 10 µV | 99.31 % | 99.39 % |
+| **30 µV** | **99.34 %** | **99.41 %** |
+| 100 µV | 99.32 % | 99.39 % |
+| 300 µV | 99.04 % | 99.00 % |
+
+At the rail the OFF models are less accurate for Is and Ib (≈ 98.8 % / 97.5 %) than on their test sets,
+because few training samples lie that close to a rail. Is (source on the rail) and Ib (~1e-14 A) hardly
+enter the VDD-side gate leakage; Id does.

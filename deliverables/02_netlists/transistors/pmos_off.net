@@ -1,0 +1,28 @@
+* PMOS OFF - single-transistor example netlist (22nm_MGK, row 0 of pmos_off.csv)
+* Vg/Vb fixed by the case; Vd, Vs, VDD, T, W and the process parameters are one random sample.
+.include "../../model/22nm_MGK.pm"
+.options gmin=1e-18 abstol=1e-18 reltol=1e-6 vntol=1e-9
+.temp 24.0631295
+
+Mp drain gate source body pmos W=1.02530546e-07 L=2.2e-08
+Vd drain  0 0.506903174
+Vg gate   0 0.913163518
+Vs source 0 0.231179682
+Vb body   0 0.913163518
+
+.control
+* process sample (nominal +-10 %)
+altermod pmos vth0=-0.261881762
+altermod pmos toxe=6.08930822e-10
+altermod pmos ndep=4.77607333e+18
+altermod pmos u0=0.00215809353
+altermod pmos xj=6.72858135e-09
+op
+* currents INTO each terminal (dataset sign convention) = -i(source)
+let id = -i(vd)
+let ig = -i(vg)
+let is = -i(vs)
+let ib = -i(vb)
+print id ig is ib
+.endc
+.end

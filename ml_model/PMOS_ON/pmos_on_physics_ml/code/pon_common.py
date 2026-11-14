@@ -4,7 +4,9 @@ from sklearn.model_selection import train_test_split
 
 K_Q = 8.617333e-5                     # Boltzmann constant / electron charge (V per K)
 CURRENTS = ['id', 'ig', 'is', 'ib']
-DATA_CSV = os.environ.get('PMOS_ON_CSV', 'pmos_on.csv')   # set PMOS_ON_CSV to your file path
+_DEFAULT_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             '..', '..', '..', '..', 'dataset', 'PMOS_ON', 'pmos_on.csv'))
+DATA_CSV = os.environ.get('PMOS_ON_CSV', _DEFAULT_DATA)   # override with PMOS_ON_CSV if needed
 SEED = 42
 
 def load_split(seed=SEED):

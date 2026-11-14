@@ -34,10 +34,6 @@ warnings.filterwarnings("ignore")
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 _DEFAULT_OUT = os.path.abspath(os.path.join(_THIS_DIR, "..", "results"))
 _DEFAULT_DATA = os.path.abspath(os.path.join(_THIS_DIR, "..", "..", "..", "..", "dataset", "NMOS_OFF", "nmos_off.csv"))
-if not os.path.exists(_DEFAULT_DATA):
-    _alt = os.path.abspath(os.path.join(_THIS_DIR, "..", "..", "..", "..", "Data_Generation_M1", "data", "nmos_off.csv"))
-    if os.path.exists(_alt):
-        _DEFAULT_DATA = _alt
 
 DATA_CSV = os.environ.get("NMOS_OFF_CSV", _DEFAULT_DATA)
 OUT_DIR = os.environ.get("NMOS_OFF_OUT", _DEFAULT_OUT)

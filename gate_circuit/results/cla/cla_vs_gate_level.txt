@@ -1,0 +1,4 @@
+Gate level vs circuit level
+                 level bias_pct median_err_pct p95_err_pct max_err_pct mean_acc_pct
+gates (18 cases x 200)   -1.012          2.127       6.756      23.052       97.322
+ 3-bit CLA (128 x 200)   -1.354          2.104       4.571      11.035       97.756

@@ -1,0 +1,5 @@
+Where the CLA error comes from
+                                      comparison     n spice_median_A ml_median_A bias_pct median_err_pct p95_err_pct max_err_pct mean_acc_pct
+                   ML hierarchical vs full SPICE 25600     7.3461e-06  7.2535e-06   -1.354          2.104       4.571      11.035       97.756
+SPICE gate-sum vs full SPICE (composition error) 25600     7.3461e-06  7.3166e-06   -0.174          0.241       1.018       2.339       99.645
+ ML hierarchical vs SPICE gate-sum (model error) 25600     7.3166e-06  7.2535e-06   -1.148          1.895       4.352      10.218       97.927

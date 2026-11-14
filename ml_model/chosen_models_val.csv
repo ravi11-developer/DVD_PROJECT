@@ -1,0 +1,17 @@
+case,current,model,median_err_pct,p95_err_pct,mean_accuracy_pct,r2_log,model_files_ok
+NMOS ON,ID,"physics + LightGBM, 4 versions x 3 seeds, blended per current",0.26425,1.9626,99.412,0.99996,True
+NMOS ON,IG,"physics + LightGBM, 4 versions x 3 seeds, blended per current",0.24168,2.6068,99.224,0.99983,True
+NMOS ON,IS,"physics + LightGBM, 4 versions x 3 seeds, blended per current",0.25659,1.8861,99.449,0.99998,True
+NMOS ON,IB,"physics + LightGBM, 4 versions x 3 seeds, blended per current",0.40923,3.1978,99.122,0.99997,True
+NMOS OFF,ID,"physics + LightGBM, 3 seeds",0.020124,0.9036,99.75,0.99945,True
+NMOS OFF,IG,"physics + LightGBM, 3 seeds",0.017029,0.19815,99.942,1,True
+NMOS OFF,IS,"physics + LightGBM, 3 seeds",0.019707,0.99291,99.66,0.99904,True
+NMOS OFF,IB,"physics + LightGBM, 3 seeds",0.036399,0.53575,99.62,0.97482,True
+PMOS ON,ID,"physics + LightGBM, 2 versions x 3 seeds, averaged",0.23355,1.3798,99.528,0.99937,True
+PMOS ON,IG,"physics + LightGBM, 2 versions x 3 seeds, averaged",0.37531,2.7675,99.181,0.99988,True
+PMOS ON,IS,"physics + LightGBM, 2 versions x 3 seeds, averaged",0.23533,1.3795,99.527,0.99991,True
+PMOS ON,IB,"physics + LightGBM, 2 versions x 3 seeds, averaged",0.30495,2.4055,99.348,0.99998,True
+PMOS OFF,ID,"physics + LightGBM (mirrored NMOS OFF pipeline), 3 seeds",0.020771,0.68694,99.795,0.99985,True
+PMOS OFF,IG,"physics + LightGBM (mirrored NMOS OFF pipeline), 3 seeds",0.016122,0.19343,99.944,1,True
+PMOS OFF,IS,"physics + LightGBM (mirrored NMOS OFF pipeline), 3 seeds",0.019103,0.71818,99.788,0.99985,True
+PMOS OFF,IB,"physics + LightGBM (mirrored NMOS OFF pipeline), 3 seeds",0.072438,0.57395,99.684,0.99641,True

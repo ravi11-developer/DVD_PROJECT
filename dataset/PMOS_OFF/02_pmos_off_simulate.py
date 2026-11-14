@@ -1,14 +1,17 @@
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-NGSPICE    = r"D:\ngspice-47_64\Spice64\bin\ngspice_con.exe"
-MODEL_FILE = r"D:\DVD_PROJECT\model\22nm_MGK.pm"
-INPUT_CSV  = "pmos_off_inputs.csv"
-OUTPUT_CSV = "pmos_off.csv"
-SIM_DIR    = "sim_pmos_off"
+HERE       = Path(__file__).resolve().parent
+NGSPICE    = os.environ.get("NGSPICE") or shutil.which("ngspice_con") or shutil.which("ngspice") or "ngspice"
+MODEL_FILE = HERE.parents[1] / "model" / "22nm_MGK.pm"
+INPUT_CSV  = HERE / "pmos_off_inputs.csv"
+OUTPUT_CSV = HERE / "pmos_off.csv"
+SIM_DIR    = HERE / "sim_pmos_off"
 BATCH_SIZE = 1000
 L          = 22e-9
 
@@ -120,7 +123,7 @@ def main():
     print(f"KCL pass: {int(kcl_pass.sum())}/{len(df)} rows")
 
     df.to_csv(OUTPUT_CSV, index=False)
-    print(f"Saved {OUTPUT_CSV} with shape {df.shape}")
+    print(f"Saved {OUTPUT_CSV.name} with shape {df.shape}")
 
 
 if __name__ == "__main__":

@@ -43,16 +43,13 @@ predictions and plots are converted back to real NMOS ON signs.
 
 ## How to run (Windows, PowerShell)
 
-1. Put `nmos_on.csv` somewhere simple, for example `D:\DVD_ML_PROJECT\data\nmos_on.csv`.
+1. The data is read automatically from `dataset/NMOS_ON/nmos_on.csv` in the project root (no setup needed).
 2. Open this folder in File Explorer, click the address bar, type `powershell` and press Enter.
 3. Install the libraries (once):
    ```
-   python -m pip install -r requirements.txt
+   python -m pip install -r ..\..\..\requirements.txt   (project-wide file in the project root)
    ```
-4. Tell the script where the data is:
-   ```
-   $env:NMOS_ON_CSV = "D:\DVD_ML_PROJECT\data\nmos_on.csv"
-   ```
+4. (Optional) To use a different CSV, set `$env:NMOS_ON_CSV = "C:\path\to\nmos_on.csv"`.
 5. Choose one:
    - **Check the results with the saved models (no training, about 30–60 minutes on one core):**
      ```
