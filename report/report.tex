@@ -99,11 +99,13 @@
     {\large \bfseries ML-Driven PVT Variation Aware Leakage Estimation  \par}
     \vspace{6pt}
     {\large \textit{Course Code: M26EC2.408} \par}
+    \vspace{6pt}
+    {\normalsize Code: \href{https://github.com/ravi11-developer/DVD_PROJECT.git}{\texttt{github.com/ravi11-developer/DVD\_PROJECT}} \par}
     \vfill
     {\Large\scshape \bfseries Anumay Rai \& Ravi Kumar Sahu	 \& Diddigi Srivatsa
     \& Ashlin K Sunil \par}
     \vspace{4pt}
-    {\large Roll No: 2024102024 \& 2025122009 \par}
+    {\large Roll No: 2024102024 \& 2025122009 \& 2024102025 \& 2025122013 \par}
     \vspace{10mm}
     \thispagestyle{empty}
 \end{titlepage}
@@ -119,7 +121,6 @@
 \setcounter{page}{1}
 \pagestyle{fancy}
 \fontsize{11}{13}\selectfont
-
 % ===========================================================================
 \section{Introduction}
 % ===========================================================================
@@ -141,6 +142,18 @@ The error of one prediction is $e = |I_{ML}-I_{SPICE}|/|I_{SPICE}|$ (in \%), and
 \emph{mean accuracy} is $100 - \operatorname{mean}(\min(e, 100\,\%))$. The target is a mean
 accuracy of up to 99\,\%.
 
+\textbf{Summary of results.} The target is met at every level of the hierarchy:
+\begin{itemize}
+    \item \textbf{Transistor models} (test set): \ModelMinAcc--\ModelMaxAcc\,\% mean accuracy over
+          the 16 terminal currents. All currents are above 99\,\% except \ModelMinAccWhere{}.
+    \item \textbf{Gates} (18 cases $\times$ 200 corners): \textbf{\GateMeanAcc\,\%} mean accuracy,
+          median error \GateMedErr\,\%. \GateNinetyNineCount{} of the 18 cases reach 99\,\%.
+    \item \textbf{3-bit CLA} (128 vectors $\times$ 200 corners): \textbf{\ClaMeanAcc\,\%} mean
+          accuracy, median error \ClaMedErr\,\%.
+\end{itemize}
+The code and scripts that regenerate all results are available at
+\href{https://github.com/ravi11-developer/DVD_PROJECT.git}{\texttt{github.com/ravi11-developer/DVD\_PROJECT}}.
+
 % ===========================================================================
 \section{Setup}
 % ===========================================================================
@@ -150,14 +163,14 @@ accuracy of up to 99\,\%.
 \hline
 Item & Value \\
 \hline
-Device model & PTM 22\,nm metal gate / high-$k$ (BSIM4) \\
-Nominal supply & $V_{DD} = 0.9$\,V, sampled $0.81$--$0.99$\,V ($\pm10\,\%$) \\
+Model file (assigned) & \texttt{22nm\_MGK.pm}: PTM 22\,nm metal gate / high-$k$ (BSIM4) \\
+Nominal supply (assigned) & $V_{DD} = 0.9$\,V, sampled $0.81$--$0.99$\,V ($\pm10\,\%$) \\
 Channel length & $L = L_{min} = 22$\,nm \\
 Widths (Part A) & $W = 1$--$8\times L_{min}$ = 22--176\,nm \\
 Widths (Parts B, C) & $W_n = 2L_{min} = 44$\,nm, $W_p = 4L_{min} = 88$\,nm \\
 Temperature & $-40$ to $125\,^\circ$C \\
 Process parameters & \texttt{vth0, toxe, ndep, u0, xj}: nominal $\pm10\,\%$, separate for NMOS and PMOS \\
-Test circuit & 3-bit carry-lookahead adder (39 gates, 186 transistors) \\
+Test circuit (assigned) & 3-bit carry-lookahead adder (39 gates, 186 transistors) \\
 Simulator & ngspice-42, DC operating point \\
 SPICE options & \texttt{gmin=1e-18 abstol=1e-18 reltol=1e-6 vntol=1e-9} \\
 ML software & Python, LightGBM, scikit-learn, SciPy \\
@@ -178,7 +191,7 @@ Nominal process values: NMOS \texttt{vth0}\,=\,0.3692\,V, \texttt{toxe}\,=\,0.65
 Samples were drawn uniformly and independently with a fixed seed: $V_{DD}$ first, then $V_d$ and
 $V_s$ in $[0, V_{DD}]$, the width, the temperature and the five process parameters. The gate and
 body voltages are fixed by the case (Table~\ref{tab:bias}). More than 10{,}000 SPICE samples were
-generated per case, over 50{,}000 in total, including the extra samples of Section~III.iii.
+generated per case, over 50{,}000 in total, including the extra samples of Section~\ref{sec:extra_samples}.
 
 \begin{table}[H]
 \centering
@@ -205,6 +218,7 @@ into the terminal. The stored inputs are the values read back from ngspice. Rand
 were re-simulated independently and matched to about $10^{-6}\,\%$.
 
 \subsection{Extra samples at gate operating points}
+\label{sec:extra_samples}
 Models trained only on the uniform data reached 99.1--99.95\,\% on their test sets but only
 97.3\,\% on the gates. Inside a static gate an ON transistor carries only the leakage of the OFF
 network, so its $|V_{ds}|$ is very small (median \OnVdsMedian\,mV), and the bottom transistor of a
@@ -272,6 +286,7 @@ source-side terminal, taken at $V_{gs}\approx0$ and $|V_{ds}|\ge0.6$\,V.
 \section{Transistor Models}
 % ===========================================================================
 \subsection{Approach: physics baseline + LightGBM correction}
+\label{sec:approach}
 All four models use the same structure: a compact physics model fitted by least squares on the
 training data, and a LightGBM model that learns the correction.
 
@@ -290,6 +305,20 @@ training data, and a LightGBM model that learns the correction.
     \item \textbf{Mirroring.} NMOS ON is the mirror image of PMOS ON, and PMOS OFF of NMOS OFF
           ($V' = V_{DD}-V$, currents negated), so each pair uses the same pipeline.
 \end{itemize}
+
+\textbf{Why a physics baseline with an ML correction.} Leakage currents depend exponentially on
+$V_{gs}$, $V_{ds}$, temperature, vth0 and toxe, and they span many decades across the sampled
+range. A purely data-driven model has to learn this whole shape from about 10{,}000 samples. Tree
+models approximate it in steps, which leaves percent-level errors between the steps. The compact
+physics model already captures the exponential dependences: on its own it reaches 71--98.7\,\% mean
+accuracy (Table~\ref{tab:ablation}). LightGBM then only has to learn the remaining correction,
+which is small, smooth and spans a narrow range. Such a residual is much easier to fit with the
+same amount of data. The physics terms also give the correct sign structure of $I_d$ and $I_s$,
+which a model of $\log|I|$ alone does not represent where the current changes sign. In practice the
+correction lowers the median error by one to two orders of magnitude relative to the physics model.
+In every case the final physics + LightGBM model is more accurate than the best purely data-driven
+model on $I_d$ and $I_s$. It is also more accurate on all four currents except PMOS OFF $I_g$
+(Section~\ref{sec:model_cmp}).
 
 \textbf{LightGBM hyperparameters} (all cases): Huber loss ($\alpha=0.005$), learning rate 0.08,
 31 leaves, at least 20 samples per leaf, linear trees ($\lambda_\text{lin}=0.1$), 80\,\% row and
@@ -327,16 +356,151 @@ models: the ML correction lowers the median error by one to two orders of magnit
 \label{tab:ablation}
 \end{table}
 
-For PMOS OFF an MLP ensemble was also trained on the same split. It rebuilds $I_d$ from $I_g$,
-$I_b$ and an antisymmetric term, which fails near the zero crossing of $I_d$, and it was less
-accurate on every current (Table~\ref{tab:pmosoff}). The physics + LightGBM model was selected.
+\subsection{Model comparison per case (validation set)}
+\label{sec:model_cmp}
+Tables~\ref{tab:cmp_non}--\ref{tab:cmp_poff} list every model type tried during development for
+which the full set of validation metrics ($R^2$, median error, 95th-percentile error and mean
+accuracy) was recorded. Each cell gives the four terminal currents in the order
+$I_d$\,/\,$I_g$\,/\,$I_s$\,/\,$I_b$. $R^2$ is computed on $\log|I|$ unless marked $^\dagger$
+(linear current). Earlier models were trained on earlier versions of the data and features, before
+the gate-region samples were added, so they show the development path rather than an exactly
+like-for-like comparison. The model types and their main settings are:
+
+\begin{itemize}
+    \item \textbf{Physics only:} the compact physics model of Section~\ref{sec:approach} fitted by least squares,
+          without an ML correction (versions A--D for NMOS ON, A--B for PMOS ON).
+    \item \textbf{LightGBM:} gradient-boosted trees on $\log|I|$ and the raw inputs. NMOS ON:
+          first version about 1{,}000 trees; then physics-informed features, about 2{,}500 trees;
+          then learning rate 0.05, 31 leaves, 1{,}000 trees; final tuned version L1 loss, learning
+          rate 0.02, 95 leaves, 6{,}000 trees, 85\,\% row and feature subsampling. NMOS OFF:
+          Optuna-tuned (learning rate 0.017, 49 leaves, at least 9 samples per leaf, 72\,\% row and
+          94\,\% feature subsampling). PMOS ON: learning rate 0.03, 63 leaves, depth 10,
+          3{,}000 trees, used directly and on the residual of a degree-2 or degree-3 polynomial +
+          ridge base.
+    \item \textbf{XGBoost:} histogram trees on $\log|I|$. NMOS ON: learning rate 0.05, depth 5,
+          1{,}000 trees; tuned version MAE loss, learning rate 0.02, depth 7, 6{,}000 trees, early
+          stopping after 200 rounds. NMOS OFF: Optuna-tuned (learning rate 0.007, depth 8, 83\,\%
+          row subsampling, $L_2=1.21$). PMOS ON: learning rate 0.03, depth 7, 3{,}000 trees.
+    \item \textbf{Random Forest / Extra Trees} (PMOS ON): 400 trees, at least 2 samples per leaf,
+          70\,\% of features per split.
+    \item \textbf{MLP:} fully connected network on scaled inputs and $\log|I|$ targets. PMOS OFF:
+          physics-derived features; the final version uses an ensemble (6 members for $I_g$ and the
+          channel term, 3 for $I_b$) with oversampling, and rebuilds $I_d$ and $I_s$ from $I_g$,
+          $I_b$ and an antisymmetric channel term.
+    \item \textbf{Physics + LightGBM:} the chosen approach of Section~\ref{sec:approach}.
+\end{itemize}
 
 \begin{table}[H]
 \centering
-\gentablenat{tab_pmos_off_selection}
-\caption{PMOS OFF model selection: validation mean accuracy (\%).}
-\label{tab:pmosoff}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Model & $R^2$ & Median err (\%) & p95 err (\%) & Mean acc. (\%) \\
+\hline
+LightGBM, first version & .9780 / .9947 / .9795 / .9933 & 14.40 / 8.02 / 13.22 / 16.69 & 91.02 / 32.54 / 80.06 / 52.40 & 62.86 / 88.61 / 66.07 / 79.11 \\
+LightGBM + physics features & .9951 / .9969 / .9945 / .9947 & 5.43 / 6.51 / 5.46 / 13.74 & 39.00 / 24.39 / 39.78 / 51.24 & 87.98 / 90.88 / 87.75 / 81.91 \\
+LightGBM (31 leaves) & .9989 / .9995 / .9988 / .9992 & 1.062 / 0.856 / 1.096 / 4.476 & 15.67 / 8.02 / 15.34 / 18.24 & 96.40 / 98.00 / 96.53 / 93.52 \\
+XGBoost (depth 5) & .9980 / .9997 / .9980 / .9983 & 1.656 / 1.157 / 1.631 / 6.999 & 23.24 / 7.29 / 23.10 / 25.56 & 94.78 / 97.92 / 94.80 / 90.75 \\
+LightGBM, tuned & .9989 / .9996 / .9990 / .9999 & 0.650 / 0.763 / 0.627 / 0.772 & 4.21 / 7.12 / 4.34 / 4.76 & 98.70 / 98.05 / 98.74 / 98.58 \\
+XGBoost, tuned & .9992 / .9995 / .9994 / .9999 & 0.777 / 0.921 / 0.757 / 0.939 & 5.04 / 8.60 / 4.69 / 5.33 & 98.37 / 97.79 / 98.49 / 98.34 \\
+Physics only (A) & .9619 / .9945 / .9620 / .9904 & 2.923 / 9.625 / 2.940 / 7.240 & 96.16 / 29.12 / 95.84 / 77.58 & 84.22 / 88.35 / 84.47 / 72.91 \\
+Physics only (B) & .9955 / .9900 / .9939 / .9937 & 3.063 / 6.800 / 3.106 / 5.406 & 53.13 / 52.72 / 52.03 / 42.73 & 89.45 / 82.95 / 89.51 / 85.84 \\
+Physics only (C) & .9952 / .9900 / .9933 / .9937 & 3.017 / 6.800 / 3.057 / 5.406 & 53.48 / 52.72 / 52.08 / 42.73 & 89.52 / 82.95 / 89.57 / 85.84 \\
+Physics only (D) & .9965 / .9982 / .9961 / .9937 & 4.136 / 2.257 / 4.148 / 5.406 & 25.28 / 18.30 / 25.15 / 42.73 & 92.19 / 94.50 / 92.23 / 85.84 \\
+Physics + LightGBM (A) & .9986 / .9999 / .9985 / .9999 & 0.371 / 0.600 / 0.343 / 0.550 & 7.69 / 3.91 / 5.93 / 4.29 & 97.82 / 98.85 / 98.20 / 98.80 \\
+Physics + LightGBM (B) & .9998 / .9999 / .9999 / 1.0000 & 0.406 / 0.380 / 0.431 / 0.480 & 2.66 / 3.17 / 2.72 / 2.77 & 99.05 / 99.12 / 99.00 / 99.11 \\
+Physics + LightGBM (C) & .9999 / .9999 / .9997 / 1.0000 & 0.422 / 0.375 / 0.416 / 0.497 & 2.64 / 3.02 / 2.59 / 2.83 & 99.05 / 99.12 / 99.01 / 99.09 \\
+Physics + LightGBM (D) & .9998 / .9998 / .9996 / 1.0000 & 0.424 / 0.232 / 0.411 / 0.477 & 2.81 / 2.17 / 2.90 / 3.07 & 99.01 / 99.32 / 98.99 / 99.09 \\
+\textbf{Physics + LightGBM, blend A--D (chosen)} & .9999 / .9999 / .9999 / 1.0000 & 0.381 / 0.217 / 0.380 / 0.457 & 2.40 / 1.60 / 2.69 / 2.70 & \textbf{99.13 / 99.39 / 99.14 / 99.17} \\
+\hline
+\end{tabular}}
+\caption{NMOS ON: validation metrics of all model types tried ($I_d$\,/\,$I_g$\,/\,$I_s$\,/\,$I_b$).}
+\label{tab:cmp_non}
 \end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Model & $R^2$ & Median err (\%) & p95 err (\%) & Mean acc. (\%) \\
+\hline
+LightGBM (Optuna-tuned) & .9981 / 1.0000 / .9977 / .9874 & 0.165 / 0.092 / 0.170 / 0.223 & 4.99 / 0.98 / 5.27 / 3.73 & 98.16 / 99.73 / 97.86 / 99.09 \\
+XGBoost (Optuna-tuned) & .9986 / 1.0000 / .9977 / .9850 & 0.279 / 0.158 / 0.257 / 0.193 & 5.94 / 0.95 / 5.76 / 2.74 & 98.00 / 99.70 / 97.69 / 99.15 \\
+Physics only & .9984 / .9907 / .9982 / .7936 & 0.289 / 0.200 / 0.290 / 0.202 & 7.69 / 10.04 / 8.33 / 4.42 & 98.12 / 96.53 / 97.96 / 98.42 \\
+\textbf{Physics + LightGBM (chosen)} & .9989 / 1.0000 / .9985 / .9818 & 0.025 / 0.023 / 0.028 / 0.035 & 1.22 / 0.80 / 1.31 / 0.71 & \textbf{99.64 / 99.74 / 99.60 / 99.50} \\
+\hline
+\end{tabular}}
+\caption{NMOS OFF: validation metrics of all model types tried ($I_d$\,/\,$I_g$\,/\,$I_s$\,/\,$I_b$).}
+\label{tab:cmp_noff}
+\end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Model & $R^2$ & Median err (\%) & p95 err (\%) & Mean acc. (\%) \\
+\hline
+Random Forest & .9872 / .8581 / .9871 / .9649 & 10.58 / 56.69 / 10.57 / 46.70 & 50.02 / 224.66 / 50.45 / 193.10 & 84.09 / 43.52 / 84.05 / 50.19 \\
+Extra Trees & .9896 / .8581 / .9897 / .9682 & 9.57 / 56.87 / 9.42 / 44.80 & 44.00 / 230.76 / 44.22 / 176.75 & 85.75 / 43.33 / 85.79 / 50.98 \\
+XGBoost & .9959 / .9972 / .9959 / .9952 & 3.27 / 5.52 / 3.27 / 14.71 & 24.11 / 21.65 / 25.29 / 52.75 & 93.05 / 92.31 / 93.04 / 80.92 \\
+MLP & .9998 / .9993 / .9997 / .9997 & 1.44 / 2.50 / 1.46 / 3.82 & 5.72 / 9.33 / 5.88 / 12.68 & 97.91 / 96.39 / 97.86 / 95.14 \\
+LightGBM & $^\dagger$.9984 / .9866 / .9986 / .9156 & 3.48 / 5.94 / 3.41 / 13.88 & 24.23 / 21.92 / 23.63 / 47.96 & 93.34 / 92.07 / 93.32 / 81.99 \\
+LightGBM on poly-2 + ridge residual & $^\dagger$.9967 / .9979 / .9969 / .9907 & 3.28 / 1.87 / 3.36 / 3.56 & 15.00 / 9.57 / 15.23 / 12.53 & 95.08 / 97.07 / 94.84 / 95.18 \\
+LightGBM on poly-3 + ridge residual & $^\dagger$.9956 / .9944 / .9955 / .9798 & 3.43 / 3.76 / 3.41 / 5.46 & 14.05 / 15.63 / 15.13 / 19.86 & 95.10 / 94.58 / 94.89 / 92.86 \\
+Physics only (A) & .9892 / .9820 / .9883 / .9893 & 2.983 / 8.939 / 2.999 / 4.110 & 65.58 / 59.80 / 67.29 / 92.46 & 88.56 / 81.84 / 88.57 / 70.81 \\
+Physics only (B) & .9907 / .9908 / .9895 / .9991 & 2.913 / 5.651 / 2.915 / 3.031 & 59.62 / 50.00 / 60.92 / 20.53 & 89.53 / 86.33 / 89.54 / 93.48 \\
+Physics + LightGBM (A) & .9991 / .9999 / .9997 / 1.0000 & 0.278 / 0.428 / 0.276 / 0.329 & 1.79 / 2.84 / 1.87 / 2.57 & 99.24 / 99.08 / 99.24 / 99.19 \\
+Physics + LightGBM (B) & .9984 / .9999 / .9998 / 1.0000 & 0.263 / 0.439 / 0.280 / 0.333 & 1.72 / 2.05 / 1.82 / 1.96 & 99.21 / 99.19 / 99.18 / 99.38 \\
+\textbf{Physics + LightGBM, average of A and B (chosen)} & .9991 / .9999 / .9997 / 1.0000 & 0.244 / 0.352 / 0.276 / 0.283 & 1.51 / 2.15 / 1.87 / 2.16 & \textbf{99.32 / 99.26 / 99.24 / 99.38} \\
+\hline
+\end{tabular}}
+\caption{PMOS ON: validation metrics of all model types tried ($I_d$\,/\,$I_g$\,/\,$I_s$\,/\,$I_b$).
+$^\dagger$\,$R^2$ on linear current.}
+\label{tab:cmp_pon}
+\end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+Model & $R^2$ & Median err (\%) & p95 err (\%) & Mean acc. (\%) \\
+\hline
+MLP, first version & $^\dagger$.9999 / 1.0000 / 1.0000 / .1325 & 0.263 / 0.173 / 0.252 / 0.088 & 2.51 / 0.84 / 2.60 / 0.85 & 95.03 / 99.69 / 98.91 / 99.38 \\
+MLP ensemble & $^\dagger$.9997 / 1.0000 / .9997 / .9605 & 0.276 / 0.215 / 0.279 / 0.102 & 3.23 / 0.89 / 2.72 / 0.84 & 98.66 / 99.67 / 98.60 / 99.60 \\
+Physics only & .9973 / .9937 / .9994 / .9573 & 0.230 / 0.154 / 0.222 / 0.194 & 10.20 / 21.09 / 9.98 / 3.61 & 98.32 / 96.33 / 98.38 / 98.67 \\
+\textbf{Physics + LightGBM (chosen)} & 1.0000 / .9998 / .9999 / .9962 & 0.027 / 0.023 / 0.027 / 0.079 & 1.01 / 1.05 / 0.94 / 0.85 & \textbf{99.75 / 99.46 / 99.74 / 99.62} \\
+\hline
+\end{tabular}}
+\caption{PMOS OFF: validation metrics of all model types tried ($I_d$\,/\,$I_g$\,/\,$I_s$\,/\,$I_b$).
+$^\dagger$\,$R^2$ on linear current.}
+\label{tab:cmp_poff}
+\end{table}
+
+\subsection{Final choice per case}
+The final model of each case was chosen on the validation set
+(Tables~\ref{tab:cmp_non}--\ref{tab:cmp_poff}):
+\begin{itemize}
+    \item \textbf{NMOS ON:} the blend of physics + LightGBM versions A--D has the highest mean
+          accuracy on every current (99.13--99.39\,\%) and the lowest 95th-percentile error
+          (1.6--2.7\,\%). The tuned LightGBM and XGBoost models reach only 97.8--98.7\,\%, with
+          95th-percentile errors of 4.2--8.6\,\%.
+    \item \textbf{NMOS OFF:} physics + LightGBM has a median error of 0.023--0.035\,\%, against
+          0.09--0.28\,\% for the Optuna-tuned LightGBM and XGBoost models. Its 95th-percentile error
+          is at most 1.31\,\% (up to 5.94\,\% for the others), and it has the highest mean accuracy
+          on all four currents.
+    \item \textbf{PMOS ON:} the best purely data-driven model (MLP) reaches only 95.1--97.9\,\%,
+          while every physics + LightGBM version exceeds 99\,\%. Averaging versions A and B gives
+          the highest mean accuracy for $I_d$, $I_g$ and $I_b$ and the lowest $I_d$
+          95th-percentile error (1.51\,\%). $I_s$ is taken from version A, which is more accurate
+          for that current (99.24 vs 99.18\,\%).
+    \item \textbf{PMOS OFF:} the MLP ensemble rebuilds $I_d$ from $I_g$, $I_b$ and an
+          antisymmetric term, which fails near the zero crossing of $I_d$. Its $I_d$ and $I_s$
+          accuracy is clearly lower (98.66 and 98.60\,\% vs 99.75 and 99.74\,\%), although its $I_g$
+          accuracy is slightly higher (99.67 vs 99.46\,\%). Physics + LightGBM was selected.
+\end{itemize}
 
 \subsection{Test-set results of the chosen models}
 Table~\ref{tab:models} gives the test-set results. All currents exceed 99\,\% mean accuracy except
@@ -417,7 +581,8 @@ error \GateMedErr\,\%, 95th-percentile error \GatePninetyfive\,\% and bias \Gate
 (Table~\ref{tab:gate}); \GateNinetyNineCount{} of the 18 cases reach 99\,\% mean accuracy. The most
 accurate case is \GateBest; the least accurate is \GateWorst{} (mean accuracy \GateWorstAcc\,\%,
 p95 \GateWorstPninetyfive\,\%). By gate type, \GateBestGate{} is the most and \GateWorstGate{} the
-least accurate (Table~\ref{tab:gatebygate}).
+least accurate (Table~\ref{tab:gatebygate}, Fig.~\ref{fig:gate_parity_gate}). The error
+distribution of every gate and input combination is shown in Fig.~\ref{fig:gate_err_case}.
 
 \begin{table}[H]
 \centering
@@ -445,12 +610,14 @@ Bias = median of (ML$-$SPICE)/SPICE.}
 \centering
 \includeimage[0.95\linewidth]{figures/gate_parity_by_gate.png}{Gate parity per gate}
 \caption{ML vs SPICE leakage per gate type.}
+\label{fig:gate_parity_gate}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includeimage[0.95\linewidth]{figures/gate_error_by_case.png}{Gate error by case}
 \caption{Error distribution for each gate and input combination.}
+\label{fig:gate_err_case}
 \end{figure}
 
 % ===========================================================================
@@ -469,7 +636,8 @@ assumes rail-to-rail gate inputs and no loading between gates.
 \subsection{Results}
 Over all vectors and corners the ML leakage has a mean accuracy of \textbf{\ClaMeanAcc\,\%}, median
 error \ClaMedErr\,\%, p95 error \ClaPninetyfive\,\% and bias \ClaBias\,\% (Table~\ref{tab:cla},
-Fig.~\ref{fig:cla_parity}).
+Fig.~\ref{fig:cla_parity}). The error hardly depends on the input pattern: the median error is
+0.46--0.53\,\% for every number of inputs at logic 1 (Fig.~\ref{fig:cla_ones}).
 
 \begin{table}[H]
 \centering
@@ -488,7 +656,8 @@ Fig.~\ref{fig:cla_parity}).
 \subsection{Comparison with the gate level}
 The circuit error has two parts (Table~\ref{tab:decomp}): the \emph{composition error} of summing
 gate leakages, caused by non-ideal gate inputs and loading (median \ClaCompMedErr\,\%), and the
-\emph{model error} of the ML gate predictions (median \ClaModelMedErr\,\%). They are of similar
+\emph{model error} of the ML gate predictions (median \ClaModelMedErr\,\%). Figure~\ref{fig:cla_gatesum}
+shows the composition error alone. They are of similar
 size, so the circuit (\ClaMeanAcc\,\%) is slightly less accurate than the isolated gates
 (\GateMeanAcc\,\%).
 
@@ -503,12 +672,14 @@ size, so the circuit (\ClaMeanAcc\,\%) is slightly less accurate than the isolat
 \centering
 \includeimage[0.72\linewidth]{figures/cla_parity_gatesum.png}{CLA SPICE gate-sum parity}
 \caption{Composition error alone: sum of SPICE gate leakages vs full-netlist SPICE.}
+\label{fig:cla_gatesum}
 \end{figure}
 
 % ===========================================================================
 \section{Error Analysis}
 % ===========================================================================
 \subsection{Transistor level}
+\label{sec:err_transistor}
 \begin{itemize}
     \item \textbf{Zero crossing of $I_d$ / $I_s$.} The largest relative errors occur where the drain
           or source current changes sign. In the OFF state the channel current and the gate-edge
@@ -535,26 +706,64 @@ in \%), and each case's share of the gate-leakage error.}
 \label{tab:tingate}
 \end{table}
 
-The least accurate gate case is \GateWorst{}, with a bias of \GateWorstBias\,\%. Temperature has
-little effect: the median gate error is \GateErrHot\,\% for $T \ge 85\,^\circ$C and
-\GateErrCold\,\% for $T\le0\,^\circ$C (CLA: \ClaErrHot\,\% and \ClaErrCold\,\%).
+\textbf{Least accurate case: \GateWorst{}.} This case has a bias of \GateWorstBias\,\%. With
+$AB=00$ the NOR2 output is at logic 1, but it is held up only through the two series PMOS. These
+also supply the leakage of the two OFF NMOS and the gate current of the inverter, so in SPICE the
+node sits about 2.4\,mV below $V_{DD}$ (3.6\,mV for $T\ge85\,^\circ$C). The ML flow sets the gate
+voltage of each transistor to its exact logic level, so the OFF PMOS of the inverter, which carries
+about 22\,\% of the gate leakage, is modelled with $V_{gs}=0$ instead of about $-2.4$\,mV. Its
+subthreshold current is therefore underpredicted. This one transistor contributes $-1.21$\,\% of
+the gate error ($-2.39$\,\% for $T\ge85\,^\circ$C), which accounts for practically all of the
+bias. NOR2~00 and INV~1 on their own, with no such internal node, have biases of only $+0.07$ and
+$+0.08$\,\%. AND2~01 and AND2~10 show the same effect at a smaller scale: the NAND2 output sits
+0.6--0.7\,mV below $V_{DD}$, and the inverter PMOS contributes $-0.39$\,\% (about $-1.0$\,\% when
+hot). These errors therefore come from the gate-voltage-at-logic-level assumption, not from the
+transistor models.
+
+\textbf{Temperature.} Figures~\ref{fig:gate_err_corner} and~\ref{fig:cla_err_corner} show the gate
+and CLA error against temperature, $V_{DD}$ and vth0. At gate level, temperature has only a small effect: the median error is
+\GateErrHot\,\% for $T \ge 85\,^\circ$C and \GateErrCold\,\% for $T\le0\,^\circ$C. The CLA is
+clearly more sensitive, and its error rises steadily above about 25\,$^\circ$C
+(Fig.~\ref{fig:cla_err_corner}). Its median error is \ClaErrHot\,\% when hot and \ClaErrCold\,\% when cold,
+and the bias in the hottest quartile is $-1.21$\,\%, against about 0\,\% in the coldest. At
+$T\ge85\,^\circ$C the median composition error (SPICE gate sum vs full netlist) is $-0.66$\,\% and
+the median model error is $-0.49$\,\%, so the two contribute about equally. Both have the same
+cause: leakage rises steeply with temperature, so internal logic-1 nodes droop further below
+$V_{DD}$. That breaks both the rail-to-rail input assumption of the composition and the
+gate-voltage-at-logic-level assumption described above. The CLA also contains many gates in exactly
+the affected states; for the all-zero input vector, all six OR2 gates are at 00.
+
+\textbf{Threshold voltage and supply voltage.} NMOS vth0 has almost no effect at gate level: the
+median error stays between 0.32 and 0.45\,\% across its quartiles (Spearman $\rho=0.04$). Lower
+PMOS $|$vth0$|$ shifts the gate bias from $-0.09$\,\% (highest $|$vth0$|$ quartile) to
+$+0.22$\,\% (lowest), which is still small. In the CLA, the lowest NMOS vth0 quartile has a bias of
+$-0.60$\,\%, against $-0.13$\,\% for the highest. Most of this ($-0.44$\,\%) is composition error,
+because a lower threshold gives more leakage and therefore more droop of the internal nodes.
+$V_{DD}$ is the corner parameter with the largest gate-level effect. The median error rises from
+0.29\,\% in the lowest $V_{DD}$ quartile to 0.59\,\% in the highest, and the 95th-percentile error
+from 1.22 to 2.51\,\% (Fig.~\ref{fig:gate_err_corner}). A higher supply increases DIBL and gate tunnelling, and gate tunnelling of
+the ON devices is the part of the transistor models with the largest errors
+(Section~\ref{sec:err_transistor}).
 
 \begin{figure}[H]
 \centering
 \includeimage[0.95\linewidth]{figures/gate_error_vs_corner.png}{Gate error vs corner}
 \caption{Gate error vs corner conditions.}
+\label{fig:gate_err_corner}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includeimage[0.95\linewidth]{figures/cla_error_vs_corner.png}{CLA error vs corner}
 \caption{CLA error vs corner conditions.}
+\label{fig:cla_err_corner}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includeimage[0.72\linewidth]{figures/cla_error_by_ones.png}{CLA error by input pattern}
 \caption{CLA error vs the number of inputs at logic 1.}
+\label{fig:cla_ones}
 \end{figure}
 
 % ===========================================================================
@@ -573,6 +782,67 @@ little effect: the median gate error is \GateErrHot\,\% for $T \ge 85\,^\circ$C 
           gate would reduce the composition error.
     \item \textbf{Run time.} Training all four models takes about 70 minutes on 11 cores; predicting
           all gate transistors takes about five minutes.
+\end{itemize}
+
+% ===========================================================================
+\section{Conclusion}
+% ===========================================================================
+Four single-transistor models, each a compact physics model with a LightGBM correction, predict
+all four terminal currents of NMOS and PMOS in the ON and OFF states. On the test set they reach
+\ModelMinAcc--\ModelMaxAcc\,\% mean accuracy. Using only these models and the gate node voltages,
+the leakage of INV, NAND2, NOR2, AND2 and OR2 is predicted with \GateMeanAcc\,\% mean accuracy over
+18 input cases and 200 PVT corners. Composing the gate predictions gives the leakage of the
+complete 3-bit carry-lookahead adder with \ClaMeanAcc\,\% mean accuracy, so the 99\,\% target is
+met at all three levels.
+
+Two choices were decisive. The first was the physics baseline, which leaves the ML model only a
+small, smooth correction to learn. The second was adding training samples at the operating points
+that actually occur inside gates, which raised the gate accuracy from 97.3 to \GateMeanAcc\,\%.
+The remaining error is dominated not by the transistor models but by the assumptions of the
+hierarchical flow: gate voltages taken at their exact logic level, and rail-to-rail inputs with no
+loading in the circuit composition. Both matter most at high temperature. Relaxing these
+assumptions is the most promising way to improve the accuracy further.
+
+% ===========================================================================
+\section{Contributions}
+% ===========================================================================
+I think we can't draw a perfect boundary we have do for this project but below  is a box view of what we did in whole sense. 
+
+\begin{itemize}
+    \item \textbf{Anumay Rai}
+    \begin{itemize}
+        \item Generated the SPICE datasets for all four cases (NMOS and PMOS, ON and OFF).
+        \item Developed the NMOS OFF models: Optuna-tuned LightGBM and XGBoost, followed by the
+              final physics + LightGBM model.
+        \item Developed the physics + LightGBM models for PMOS ON (versions A, B) and NMOS ON
+              (versions A--D and their blend).
+    \end{itemize}
+    \item \textbf{Ravi Kumar Sahu}
+    \begin{itemize}
+        \item Set up the repository and the first models for all four cases, and developed and
+              tuned the LightGBM and XGBoost models for NMOS ON.
+        \item Implemented the gate and test-circuit flow: PVT corners, gate and CLA SPICE
+              simulations, and the hierarchical ML leakage prediction.
+        \item Added the gate-region training samples and built the reproducible pipeline, the
+              deliverables collection and the report.
+    \end{itemize}
+    \item \textbf{Diddigi Srivatsa}
+    \begin{itemize}
+        \item Developed the PMOS OFF neural-network models: an MLP and an MLP ensemble with
+              physics-derived features and reconstruction of $I_d$ and $I_s$.
+        \item Trained and evaluated polynomial regression and Random Forest models for PMOS OFF as
+              comparison baselines.
+        \item Produced the PMOS OFF parity plots and the validation and test metrics used for
+              model selection.
+    \end{itemize}
+    \item \textbf{Ashlin K Sunil}
+    \begin{itemize}
+        \item Built an independent PMOS ON SPICE data-generation flow with Kirchhoff and trend
+              checks.
+        \item Compared Random Forest, Extra Trees, XGBoost, MLP and LightGBM for PMOS ON,
+              including LightGBM on a polynomial + ridge residual.
+        \item Documented the PMOS ON model study and its comparison results.
+    \end{itemize}
 \end{itemize}
 
 \end{document}

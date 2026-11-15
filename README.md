@@ -4,6 +4,13 @@ ML-driven PVT-variation-aware leakage estimation (22nm_MGK, VDD = 0.9 V, test ci
 Four transistor models (NMOS/PMOS, ON/OFF) predict Id, Ig, Is, Ib; gate and circuit leakage are
 built from them and checked against SPICE.
 
+## Team Members
+
+- Anumay Rai
+- Ravi Kumar Sahu
+- Diddigi Srivatsa
+- Ashlin K Sunil
+
 
 The slow SPICE stages (`data`, `spice`) only run when asked for; their outputs are already in the repo.
 
@@ -14,7 +21,7 @@ The slow SPICE stages (`data`, `spice`) only run when asked for; their outputs a
 | `train` | trains the 4 models in parallel | model files in `ml_model/*/results/` |
 | `check` | model summary; checks the gate code reproduces each model | `ml_model/chosen_models_*.csv`, `gate_circuit/results/model_check.csv` |
 | `spice` | gate + CLA SPICE references | `gate_circuit/data/` |
-| `gates` | ML gate + CLA leakage, tables, parity plots | `gate_circuit/results/` |
+| `gates` | ML gate + CLA leakage, tables, parity plots | `gate_circuit/results/` |de
 | `collect` | copies every deliverable, numbered like the project document | `deliverables/` |
 | `report` | refreshes report tables, numbers and figures | `report/generated/`, `report/figures/` |
 
